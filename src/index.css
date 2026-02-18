@@ -1,0 +1,67 @@
+:root {
+  --primary: #0a1628;
+  --primary-blue: #1a3af5;
+  --primary-blue-light: #4d6af7;
+  --accent: #0066ff;
+  --bg-gradient-start: #e8f0fe;
+  --bg-gradient-end: #f5f8ff;
+  --bg-light: #f0f4ff;
+  --text-dark: #0a1628;
+  --text-muted: #5a6a80;
+  --white: #ffffff;
+  --card-shadow: 0 4px 24px rgba(10, 22, 40, 0.08);
+  --card-shadow-hover: 0 8px 40px rgba(26, 58, 245, 0.15);
+  --border-radius: 16px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 50%, var(--bg-gradient-start) 100%);
+  color: var(--text-dark);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-light);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--primary-blue-light);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-blue);
+}
