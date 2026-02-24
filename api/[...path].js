@@ -3,13 +3,20 @@
 
 const TARGET = 'http://3.95.226.54';
 
+export const config = {
+  api: {
+    bodyParser: true,
+  },
+};
+
 export default async function handler(req, res) {
-  const { path } = req.query;
-  const apiPath = Array.isArray(path) ? path.join('/') : path;
-  const url = `${TARGET}/api/${apiPath}`;
+  // Extract path from URL — /api/auth/login → auth/login
+  const fullPath = req.url.replace(/^\/?api\//, '').split('?')[0];
+  const url = `${TARGET}/api/${fullPath}`;
 
   // Forward query string
-  const queryString = new URL(req.url, `https://${req.headers.host}`).search || '';
+  const qsIndex = req.url.indexOf('?');
+  const queryString = qsIndex !== -1 ? req.url.substring(qsIndex) : '';
 
   try {
     // Build headers to forward
@@ -26,8 +33,12 @@ export default async function handler(req, res) {
     };
 
     // Forward body for non-GET requests
-    if (req.method !== 'GET' && req.method !== 'HEAD' && req.body) {
-      fetchOptions.body = JSON.stringify(req.body);
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      if (req.body && typeof req.body === 'object') {
+        fetchOptions.body = JSON.stringify(req.body);
+      } else if (req.body) {
+        fetchOptions.body = req.body;
+      }
     }
 
     const response = await fetch(`${url}${queryString}`, fetchOptions);
@@ -37,6 +48,12 @@ export default async function handler(req, res) {
     const contentType = response.headers.get('content-type');
     if (contentType) {
       res.setHeader('Content-Type', contentType);
+    }
+
+    // Forward CORS headers if present
+    const corsOrigin = response.headers.get('access-control-allow-origin');
+    if (corsOrigin) {
+      res.setHeader('Access-Control-Allow-Origin', corsOrigin);
     }
 
     res.status(response.status).send(data);
