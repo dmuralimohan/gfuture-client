@@ -104,13 +104,13 @@ const Categories = () => {
                     width: 72,
                     height: 72,
                     bgcolor: '#fff',
-                    border: '2px solid rgba(26,58,245,0.1)',
-                    color: '#1a3af5',
-                    boxShadow: '0 4px 20px rgba(10,22,40,0.06)',
+                    border: '2px solid rgba(15,43,102,0.1)',
+                    color: '#03288C',
+                    boxShadow: '0 4px 20px rgba(15,43,102,0.06)',
                     transition: 'all 0.3s ease',
                     '&:hover': {
-                      borderColor: '#1a3af5',
-                      boxShadow: '0 6px 24px rgba(26,58,245,0.15)',
+                      borderColor: '#03288C',
+                      boxShadow: '0 6px 24px rgba(15,43,102,0.15)',
                     },
                   }}
                 >
@@ -120,7 +120,7 @@ const Categories = () => {
                   variant="caption"
                   sx={{
                     fontWeight: 600,
-                    color: '#0a1628',
+                    color: '#03288C',
                     lineHeight: 1.3,
                     fontSize: '0.7rem',
                   }}

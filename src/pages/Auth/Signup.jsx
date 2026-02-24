@@ -188,7 +188,7 @@ const Signup = () => {
         display: 'flex',
         alignItems: 'center',
         py: 6,
-        background: 'linear-gradient(135deg, #e8f0fe 0%, #f0f4ff 100%)',
+        background: 'linear-gradient(135deg, #eaf1fb 0%, #f0f5ff 100%)',
       }}
     >
       <Container maxWidth="sm">
@@ -197,28 +197,15 @@ const Signup = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <Card sx={{ borderRadius: 4, boxShadow: '0 8px 40px rgba(10,22,40,0.08)' }}>
+          <Card sx={{ borderRadius: 4, boxShadow: '0 8px 40px rgba(15,43,102,0.08)' }}>
             <CardContent sx={{ p: { xs: 3, md: 5 } }}>
               <Box sx={{ textAlign: 'center', mb: 4 }}>
                 <Box
-                  sx={{
-                    width: 56,
-                    height: 56,
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #0a1628, #1a3af5)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#fff',
-                    fontWeight: 800,
-                    fontFamily: 'Poppins',
-                    fontSize: 22,
-                    mx: 'auto',
-                    mb: 2,
-                  }}
-                >
-                  G
-                </Box>
+                  component="img"
+                  src="/logo.png"
+                  alt="G-Future"
+                  sx={{ height: 72, width: 'auto', mx: 'auto', mb: 2, display: 'block' }}
+                />
                 <Typography variant="h4" fontWeight={800}>
                   Join G-Future
                 </Typography>
@@ -238,14 +225,14 @@ const Signup = () => {
                       borderRadius: '24px !important',
                       px: 3,
                       py: 1,
-                      border: '2px solid rgba(26,58,245,0.2)',
+                      border: '2px solid rgba(15,43,102,0.2)',
                       fontWeight: 600,
                       fontSize: '0.85rem',
                       '&.Mui-selected': {
-                        bgcolor: '#1a3af5',
+                        bgcolor: '#03288C',
                         color: '#fff',
-                        borderColor: '#1a3af5',
-                        '&:hover': { bgcolor: '#0a2ae5' },
+                        borderColor: '#03288C',
+                        '&:hover': { bgcolor: '#021A66' },
                       },
                     },
                   }}
@@ -303,7 +290,7 @@ const Signup = () => {
                     border: otpVerified
                       ? '2px solid #22c55e'
                       : otpSent
-                        ? '2px solid #1a3af5'
+                        ? '2px solid #03288C'
                         : '1px solid rgba(0,0,0,0.12)',
                     bgcolor: otpVerified ? '#f0fdf4' : otpSent ? '#f0f4ff' : 'transparent',
                     transition: 'all 0.3s ease',
@@ -357,12 +344,12 @@ const Signup = () => {
                           mt: 0.5,
                           minWidth: 110,
                           height: 48,
-                          bgcolor: '#1a3af5',
-                          borderRadius: '12px',
+                          bgcolor: '#03288C',
+                          borderRadius: '8px',
                           fontWeight: 600,
                           fontSize: '0.8rem',
                           whiteSpace: 'nowrap',
-                          '&:hover': { bgcolor: '#0a2ae5' },
+                          '&:hover': { bgcolor: '#021A66' },
                         }}
                       >
                         {otpSending ? <CircularProgress size={20} color="inherit" /> : 'Send OTP'}
@@ -418,7 +405,7 @@ const Signup = () => {
                                     bgcolor: '#fff',
                                     '&.Mui-focused': {
                                       '& .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: '#1a3af5',
+                                        borderColor: '#03288C',
                                         borderWidth: 2,
                                       },
                                     },
@@ -511,18 +498,20 @@ const Signup = () => {
                 />
 
                 <Button
-                  fullWidth
                   type="submit"
                   variant="contained"
                   size="large"
                   disabled={loading || !otpVerified}
                   sx={{
-                    bgcolor: '#0a1628',
-                    borderRadius: '30px',
+                    bgcolor: '#03288C',
+                    borderRadius: '6px',
                     py: 1.5,
                     fontSize: '1rem',
                     fontWeight: 700,
-                    '&:hover': { bgcolor: '#1a3af5' },
+                    width: '85%',
+                    mx: 'auto',
+                    display: 'block',
+                    '&:hover': { bgcolor: '#021A66' },
                     '&.Mui-disabled': {
                       bgcolor: otpVerified ? undefined : '#ccc',
                     },
@@ -549,7 +538,7 @@ const Signup = () => {
                 <Box
                   component={Link}
                   to="/login"
-                  sx={{ color: '#1a3af5', fontWeight: 600, textDecoration: 'none' }}
+                  sx={{ color: '#03288C', fontWeight: 600, textDecoration: 'none' }}
                 >
                   Sign in
                 </Box>

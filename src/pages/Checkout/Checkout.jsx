@@ -173,11 +173,11 @@ const Checkout = () => {
             </Typography>
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
               <Button variant="contained" onClick={() => navigate('/orders')}
-                sx={{ bgcolor: '#1a3af5', borderRadius: '30px', px: 4, '&:hover': { bgcolor: '#0a2ae5' } }}>
+                sx={{ bgcolor: '#03288C', borderRadius: '6px', px: 4, '&:hover': { bgcolor: '#021A66' } }}>
                 View Orders
               </Button>
               <Button variant="outlined" onClick={() => navigate('/services')}
-                sx={{ borderRadius: '30px', px: 4, borderColor: '#0a1628', color: '#0a1628' }}>
+                sx={{ borderRadius: '6px', px: 4, borderColor: '#03288C', color: '#03288C' }}>
                 Continue Browsing
               </Button>
             </Box>
@@ -280,7 +280,7 @@ const Checkout = () => {
                     <Divider sx={{ my: 2 }} />
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                       <Typography variant="h6" fontWeight={800}>Total</Typography>
-                      <Typography variant="h6" fontWeight={800} sx={{ color: '#1a3af5' }}>₹{total.toFixed(2)}</Typography>
+                      <Typography variant="h6" fontWeight={800} sx={{ color: '#03288C' }}>₹{total.toFixed(2)}</Typography>
                     </Box>
 
                     <Alert severity="info" sx={{ mt: 3, borderRadius: 2 }} icon={<QrCode2 />}>
@@ -304,12 +304,12 @@ const Checkout = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                <Card sx={{ borderRadius: 4, mb: 3, border: '2px solid #1a3af5' }}>
+                <Card sx={{ borderRadius: 4, mb: 3, border: '2px solid #03288C' }}>
                   <CardContent sx={{ p: { xs: 3, md: 4 } }}>
                     {/* Timer Header */}
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                       <Typography variant="h6" fontWeight={700}>
-                        <QrCode2 sx={{ mr: 1, verticalAlign: 'middle', color: '#1a3af5' }} />
+                        <QrCode2 sx={{ mr: 1, verticalAlign: 'middle', color: '#03288C' }} />
                         Scan & Pay
                       </Typography>
                       <Chip
@@ -317,8 +317,8 @@ const Checkout = () => {
                         label={paymentTimer > 0 ? formatTime(paymentTimer) : 'Expired'}
                         size="small"
                         sx={{
-                          bgcolor: paymentTimer > 60 ? '#e8f0fe' : paymentTimer > 0 ? '#fef3c7' : '#fee2e2',
-                          color: paymentTimer > 60 ? '#1a3af5' : paymentTimer > 0 ? '#d97706' : '#dc2626',
+                          bgcolor: paymentTimer > 60 ? '#eaf1fb' : paymentTimer > 0 ? '#fef3c7' : '#fee2e2',
+                          color: paymentTimer > 60 ? '#03288C' : paymentTimer > 0 ? '#d97706' : '#dc2626',
                           fontWeight: 700,
                           fontFamily: 'Poppins',
                         }}
@@ -333,8 +333,8 @@ const Checkout = () => {
                           p: 3,
                           borderRadius: 4,
                           bgcolor: '#fff',
-                          border: '2px solid #e8f0fe',
-                          boxShadow: '0 4px 20px rgba(26,58,245,0.08)',
+                          border: '2px solid #eaf1fb',
+                          boxShadow: '0 4px 20px rgba(15,43,102,0.08)',
                         }}
                       >
                         {paymentData.qrCode ? (
@@ -351,7 +351,7 @@ const Checkout = () => {
                         )}
                       </Box>
 
-                      <Typography variant="h5" fontWeight={800} sx={{ mt: 2, color: '#1a3af5' }}>
+                      <Typography variant="h5" fontWeight={800} sx={{ mt: 2, color: '#03288C' }}>
                         ₹{paymentData.amount?.toFixed(2)}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
@@ -381,7 +381,7 @@ const Checkout = () => {
                         size="small"
                         startIcon={<ContentCopy sx={{ fontSize: 14 }} />}
                         onClick={() => copyToClipboard(paymentData.merchantUPI)}
-                        sx={{ fontSize: '0.7rem', color: '#1a3af5', minWidth: 'auto' }}
+                        sx={{ fontSize: '0.7rem', color: '#03288C', minWidth: 'auto' }}
                       >
                         {copied ? 'Copied!' : 'Copy'}
                       </Button>
@@ -419,7 +419,7 @@ const Checkout = () => {
                       startIcon={paymentVerifying ? <CircularProgress size={20} color="inherit" /> : <CheckCircle />}
                       sx={{
                         bgcolor: '#22c55e',
-                        borderRadius: '30px',
+                        borderRadius: '6px',
                         py: 1.5,
                         fontSize: '1rem',
                         fontWeight: 700,
@@ -456,7 +456,7 @@ const Checkout = () => {
               </Button>
               {activeStep < 2 ? (
                 <Button variant="contained" onClick={() => setActiveStep(activeStep + 1)}
-                  sx={{ bgcolor: '#1a3af5', borderRadius: '30px', px: 4, '&:hover': { bgcolor: '#0a2ae5' } }}>
+                  sx={{ bgcolor: '#03288C', borderRadius: '6px', px: 4, '&:hover': { bgcolor: '#021A66' } }}>
                   Next
                 </Button>
               ) : (
@@ -465,7 +465,7 @@ const Checkout = () => {
                   onClick={handleProceedToPayment}
                   disabled={placing || paymentLoading}
                   startIcon={(placing || paymentLoading) ? <CircularProgress size={20} color="inherit" /> : <QrCode2 />}
-                  sx={{ bgcolor: '#0a1628', borderRadius: '30px', px: 4, '&:hover': { bgcolor: '#1a3af5' } }}
+                  sx={{ bgcolor: '#03288C', borderRadius: '6px', px: 4, '&:hover': { bgcolor: '#03288C' } }}
                 >
                   {placing ? 'Creating Order...' : paymentLoading ? 'Generating QR...' : 'Proceed to Pay'}
                 </Button>

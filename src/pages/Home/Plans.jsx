@@ -62,17 +62,17 @@ const Plans = () => {
             >
               <Card
                 sx={{
-                  borderRadius: 4,
+                  borderRadius: 2,
                   position: 'relative',
                   border: plan.recommended
-                    ? '2px solid #1a3af5'
-                    : '1px solid rgba(26,58,245,0.1)',
+                    ? '2px solid #03288C'
+                    : '1px solid rgba(15,43,102,0.1)',
                   overflow: 'visible',
                   height: '100%',
                   '&:hover': {
                     boxShadow: plan.recommended
-                      ? '0 12px 48px rgba(26,58,245,0.2)'
-                      : '0 8px 32px rgba(10,22,40,0.08)',
+                      ? '0 12px 48px rgba(15,43,102,0.2)'
+                      : '0 8px 32px rgba(15,43,102,0.08)',
                   },
                   transition: 'all 0.3s ease',
                 }}
@@ -86,7 +86,7 @@ const Plans = () => {
                       top: -14,
                       left: '50%',
                       transform: 'translateX(-50%)',
-                      bgcolor: '#1a3af5',
+                      bgcolor: '#03288C',
                       color: '#fff',
                       fontWeight: 700,
                       fontSize: '0.6rem',
@@ -122,7 +122,7 @@ const Plans = () => {
                   <Box sx={{ flex: 1, my: 2 }}>
                     {plan.features.map((feature) => (
                       <Box key={feature} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                        <CheckCircle sx={{ fontSize: 16, color: '#1a3af5' }} />
+                        <CheckCircle sx={{ fontSize: 16, color: '#03288C' }} />
                         <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
                           {feature}
                         </Typography>
@@ -136,20 +136,20 @@ const Plans = () => {
                     onClick={handlePlanClick}
                     sx={{
                       mt: 'auto',
-                      borderRadius: '24px',
+                      borderRadius: '6px',
                       py: 1,
                       fontWeight: 700,
                       fontSize: '0.75rem',
                       letterSpacing: '0.05em',
                       ...(plan.recommended
                         ? {
-                            bgcolor: '#1a3af5',
-                            '&:hover': { bgcolor: '#0a2ae5' },
+                            bgcolor: '#03288C',
+                            '&:hover': { bgcolor: '#021A66' },
                           }
                         : {
-                            borderColor: '#0a1628',
-                            color: '#0a1628',
-                            '&:hover': { borderColor: '#1a3af5', color: '#1a3af5' },
+                            borderColor: '#03288C',
+                            color: '#03288C',
+                            '&:hover': { borderColor: '#03288C', color: '#03288C' },
                           }),
                     }}
                   >

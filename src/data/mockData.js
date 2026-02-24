@@ -80,7 +80,7 @@ export const services = [
     price: 349,
     rating: 4.5,
     reviews: 3200,
-    image: 'https://images.unsplash.com/photo-1564419320461-6eb9c53087b2?w=400',
+    image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400',
     description: 'Complete RO water purifier service and filter replacement for all brands.',
     duration: '30-45 mins',
     warranty: '30 days',
@@ -125,7 +125,7 @@ export const services = [
     price: 1299,
     rating: 4.6,
     reviews: 4500,
-    image: 'https://images.unsplash.com/photo-1632935190818-7e3acba78517?w=400',
+    image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400',
     description: 'Comprehensive pest control for cockroaches, ants, termites, and bed bugs.',
     duration: '2-3 hours',
     warranty: '90 days',
@@ -265,7 +265,7 @@ export const promoCards = [
     description: 'Buy now',
     cta: 'Buy now',
     bg: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
-    image: 'https://images.unsplash.com/photo-1564419320461-6eb9c53087b2?w=300',
+    image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300',
   },
 ];
 

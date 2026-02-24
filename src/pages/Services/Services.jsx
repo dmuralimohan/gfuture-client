@@ -180,11 +180,11 @@ const Services = () => {
               onClick={() => setSelectedCategory(0)}
               sx={{
                 fontWeight: 600,
-                bgcolor: selectedCategory === 0 ? '#1a3af5' : '#fff',
-                color: selectedCategory === 0 ? '#fff' : '#0a1628',
+                bgcolor: selectedCategory === 0 ? '#03288C' : '#fff',
+                color: selectedCategory === 0 ? '#fff' : '#03288C',
                 border: '1px solid',
-                borderColor: selectedCategory === 0 ? '#1a3af5' : 'rgba(26,58,245,0.15)',
-                '&:hover': { bgcolor: selectedCategory === 0 ? '#0a2ae5' : '#f0f4ff' },
+                borderColor: selectedCategory === 0 ? '#03288C' : 'rgba(15,43,102,0.15)',
+                '&:hover': { bgcolor: selectedCategory === 0 ? '#021A66' : '#f0f4ff' },
               }}
             />
             {categories.map((cat) => (
@@ -194,11 +194,11 @@ const Services = () => {
                 onClick={() => setSelectedCategory(cat.id === selectedCategory ? 0 : cat.id)}
                 sx={{
                   fontWeight: 600,
-                  bgcolor: selectedCategory === cat.id ? '#1a3af5' : '#fff',
-                  color: selectedCategory === cat.id ? '#fff' : '#0a1628',
+                  bgcolor: selectedCategory === cat.id ? '#03288C' : '#fff',
+                  color: selectedCategory === cat.id ? '#fff' : '#03288C',
                   border: '1px solid',
-                  borderColor: selectedCategory === cat.id ? '#1a3af5' : 'rgba(26,58,245,0.15)',
-                  '&:hover': { bgcolor: selectedCategory === cat.id ? '#0a2ae5' : '#f0f4ff' },
+                  borderColor: selectedCategory === cat.id ? '#03288C' : 'rgba(15,43,102,0.15)',
+                  '&:hover': { bgcolor: selectedCategory === cat.id ? '#021A66' : '#f0f4ff' },
                 }}
               />
             ))}
@@ -249,9 +249,9 @@ const Services = () => {
                       height: '100%',
                       display: 'flex',
                       flexDirection: 'column',
-                      border: '1px solid rgba(26,58,245,0.06)',
+                      border: '1px solid rgba(15,43,102,0.06)',
                       '&:hover': {
-                        boxShadow: '0 12px 40px rgba(26,58,245,0.12)',
+                        boxShadow: '0 12px 40px rgba(15,43,102,0.12)',
                         transform: 'translateY(-6px)',
                       },
                       transition: 'all 0.3s ease',
@@ -294,7 +294,7 @@ const Services = () => {
                           mb: 1,
                           fontSize: '1rem',
                           cursor: 'pointer',
-                          '&:hover': { color: '#1a3af5' },
+                          '&:hover': { color: '#03288C' },
                         }}
                       >
                         {service.name}
@@ -339,7 +339,7 @@ const Services = () => {
                           mt: 'auto',
                         }}
                       >
-                        <Typography variant="h6" sx={{ fontWeight: 800, color: '#1a3af5' }}>
+                        <Typography variant="h6" sx={{ fontWeight: 800, color: '#03288C' }}>
                           ₹{service.price.toLocaleString()}
                         </Typography>
                         <Button
@@ -351,11 +351,11 @@ const Services = () => {
                             handleAddToCart(service);
                           }}
                           sx={{
-                            bgcolor: '#0a1628',
-                            borderRadius: '20px',
+                            bgcolor: '#03288C',
+                            borderRadius: '6px',
                             px: 2,
                             fontSize: '0.75rem',
-                            '&:hover': { bgcolor: '#1a3af5' },
+                            '&:hover': { bgcolor: '#03288C' },
                           }}
                         >
                           Add

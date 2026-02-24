@@ -50,7 +50,7 @@ const Login = () => {
         display: 'flex',
         alignItems: 'center',
         py: 6,
-        background: 'linear-gradient(135deg, #e8f0fe 0%, #f0f4ff 100%)',
+        background: 'linear-gradient(135deg, #eaf1fb 0%, #f0f5ff 100%)',
       }}
     >
       <Container maxWidth="sm">
@@ -59,28 +59,15 @@ const Login = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <Card sx={{ borderRadius: 4, boxShadow: '0 8px 40px rgba(10,22,40,0.08)' }}>
+          <Card sx={{ borderRadius: 4, boxShadow: '0 8px 40px rgba(15,43,102,0.08)' }}>
             <CardContent sx={{ p: { xs: 3, md: 5 } }}>
               <Box sx={{ textAlign: 'center', mb: 4 }}>
                 <Box
-                  sx={{
-                    width: 56,
-                    height: 56,
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #0a1628, #1a3af5)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#fff',
-                    fontWeight: 800,
-                    fontFamily: 'Poppins',
-                    fontSize: 22,
-                    mx: 'auto',
-                    mb: 2,
-                  }}
-                >
-                  G
-                </Box>
+                  component="img"
+                  src="/logo.png"
+                  alt="G-Future"
+                  sx={{ height: 72, width: 'auto', mx: 'auto', mb: 2, display: 'block' }}
+                />
                 <Typography variant="h4" fontWeight={800}>
                   Welcome Back
                 </Typography>
@@ -137,18 +124,20 @@ const Login = () => {
                 />
 
                 <Button
-                  fullWidth
                   type="submit"
                   variant="contained"
                   size="large"
                   disabled={loading}
                   sx={{
-                    bgcolor: '#0a1628',
-                    borderRadius: '30px',
+                    bgcolor: '#03288C',
+                    borderRadius: '6px',
                     py: 1.5,
                     fontSize: '1rem',
                     fontWeight: 700,
-                    '&:hover': { bgcolor: '#1a3af5' },
+                    width: '85%',
+                    mx: 'auto',
+                    display: 'block',
+                    '&:hover': { bgcolor: '#021A66' },
                   }}
                 >
                   {loading ? 'Signing in...' : 'Sign In'}
@@ -166,7 +155,7 @@ const Login = () => {
                 <Box
                   component={Link}
                   to="/signup"
-                  sx={{ color: '#1a3af5', fontWeight: 600, textDecoration: 'none' }}
+                  sx={{ color: '#03288C', fontWeight: 600, textDecoration: 'none' }}
                 >
                   Sign up for free
                 </Box>

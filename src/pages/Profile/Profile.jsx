@@ -71,7 +71,7 @@ const Profile = () => {
                   sx={{
                     width: 80,
                     height: 80,
-                    bgcolor: '#1a3af5',
+                    bgcolor: '#03288C',
                     fontSize: 32,
                     fontWeight: 800,
                   }}
@@ -86,8 +86,8 @@ const Profile = () => {
                     size="small"
                     sx={{
                       mt: 1,
-                      bgcolor: user?.role === 'provider' ? '#e8f0fe' : '#f0f4ff',
-                      color: '#1a3af5',
+                      bgcolor: user?.role === 'provider' ? '#eaf1fb' : '#f0f4ff',
+                      color: '#03288C',
                       fontWeight: 700,
                       fontSize: '0.7rem',
                     }}
@@ -99,10 +99,10 @@ const Profile = () => {
                   onClick={() => editing ? handleSave() : setEditing(true)}
                   disabled={loading}
                   sx={{
-                    borderRadius: '30px',
-                    borderColor: '#1a3af5',
-                    color: '#1a3af5',
-                    '&:hover': { bgcolor: 'rgba(26,58,245,0.05)' },
+                    borderRadius: '6px',
+                    borderColor: '#03288C',
+                    color: '#03288C',
+                    '&:hover': { bgcolor: 'rgba(15,43,102,0.05)' },
                   }}
                 >
                   {editing ? 'Save' : 'Edit'}
@@ -144,9 +144,9 @@ const Profile = () => {
 
               {tab === 1 && (
                 <Box>
-                  <Card sx={{ p: 3, borderRadius: 3, bgcolor: '#f0f4ff', border: '1px solid rgba(26,58,245,0.1)', mb: 2 }}>
+                  <Card sx={{ p: 3, borderRadius: 3, bgcolor: '#f0f4ff', border: '1px solid rgba(15,43,102,0.1)', mb: 2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                      <Shield sx={{ color: '#1a3af5' }} />
+                      <Shield sx={{ color: '#03288C' }} />
                       <Box>
                         <Typography variant="subtitle2" fontWeight={700}>Token-Based Authentication</Typography>
                         <Typography variant="caption" color="text.secondary">
@@ -160,7 +160,7 @@ const Profile = () => {
                     color="error"
                     startIcon={<ExitToApp />}
                     onClick={() => { logout(); navigate('/'); }}
-                    sx={{ borderRadius: '30px' }}
+                    sx={{ borderRadius: '6px' }}
                   >
                     Sign Out
                   </Button>

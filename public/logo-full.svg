@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 80" fill="none">
+  <!-- G-Future Logo - Dark version (text-only, bold italic) -->
+  <text x="50%" y="38" dominant-baseline="middle" text-anchor="middle"
+    font-family="'Poppins', 'Arial Black', sans-serif" font-size="42" font-weight="900"
+    font-style="italic" fill="#0a1628" letter-spacing="-1">
+    G-Future
+  </text>
+  <text x="310" y="18" font-family="'Poppins', Arial, sans-serif" font-size="14" font-weight="700"
+    font-style="italic" fill="#0a1628">™</text>
+  <text x="50%" y="62" dominant-baseline="middle" text-anchor="middle"
+    font-family="'Poppins', Arial, sans-serif" font-size="11" font-weight="400"
+    fill="#5a6a80" letter-spacing="0.3">
+    A Product of Blueray International
+  </text>
+</svg>

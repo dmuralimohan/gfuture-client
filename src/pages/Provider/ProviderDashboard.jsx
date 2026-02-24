@@ -89,7 +89,7 @@ const ProviderDashboard = () => {
   const completionRate = totalOrders > 0 ? Math.round((completedOrders / totalOrders) * 100) : 0;
 
   const stats = [
-    { label: 'Total Orders', value: String(totalOrders), icon: <Assignment />, color: '#1a3af5' },
+    { label: 'Total Orders', value: String(totalOrders), icon: <Assignment />, color: '#03288C' },
     { label: 'Revenue', value: `₹${revenue.toLocaleString()}`, icon: <CurrencyRupee />, color: '#22c55e' },
     { label: 'Rating', value: '4.8', icon: <Star />, color: '#f59e0b' },
     { label: 'Completion', value: `${completionRate}%`, icon: <TrendingUp />, color: '#8b5cf6' },
@@ -116,7 +116,7 @@ const ProviderDashboard = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card sx={{ borderRadius: 3, border: '1px solid rgba(26,58,245,0.06)' }}>
+                <Card sx={{ borderRadius: 3, border: '1px solid rgba(15,43,102,0.06)' }}>
                   <CardContent sx={{ p: 2.5, textAlign: 'center' }}>
                     <Avatar sx={{ width: 48, height: 48, bgcolor: `${stat.color}15`, color: stat.color, mx: 'auto', mb: 1.5 }}>
                       {stat.icon}
@@ -142,7 +142,7 @@ const ProviderDashboard = () => {
               <Box>
                 {loadingOrders ? (
                   <Box sx={{ textAlign: 'center', py: 4 }}>
-                    <CircularProgress size={32} sx={{ color: '#1a3af5' }} />
+                    <CircularProgress size={32} sx={{ color: '#03288C' }} />
                   </Box>
                 ) : orders.length === 0 ? (
                   <Box sx={{ textAlign: 'center', py: 4 }}>
@@ -168,7 +168,7 @@ const ProviderDashboard = () => {
                         '&:hover': { bgcolor: '#f8fafc' },
                       }}
                     >
-                      <Avatar sx={{ bgcolor: '#e8f0fe', color: '#1a3af5' }}>
+                      <Avatar sx={{ bgcolor: '#eaf1fb', color: '#03288C' }}>
                         {order.customer[0]}
                       </Avatar>
                       <Box sx={{ flex: 1 }}>

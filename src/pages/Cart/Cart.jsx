@@ -43,7 +43,7 @@ const Cart = () => {
             <Button
               variant="contained"
               onClick={() => navigate('/services')}
-              sx={{ bgcolor: '#1a3af5', borderRadius: '30px', px: 4, py: 1.2, '&:hover': { bgcolor: '#0a2ae5' } }}
+              sx={{ bgcolor: '#03288C', borderRadius: '6px', px: 4, py: 1.2, '&:hover': { bgcolor: '#021A66' } }}
             >
               Browse Services
             </Button>
@@ -77,7 +77,7 @@ const Cart = () => {
                   exit={{ opacity: 0, x: 20, height: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
                 >
-                  <Card sx={{ mb: 2, borderRadius: 3, border: '1px solid rgba(26,58,245,0.06)' }}>
+                  <Card sx={{ mb: 2, borderRadius: 3, border: '1px solid rgba(15,43,102,0.06)' }}>
                     <CardContent sx={{ display: 'flex', gap: 2, alignItems: 'center', p: 2.5, '&:last-child': { pb: 2.5 } }}>
                       <Avatar
                         src={item.image}
@@ -113,7 +113,7 @@ const Cart = () => {
                         </IconButton>
                       </Box>
 
-                      <Typography variant="h6" fontWeight={800} sx={{ minWidth: 80, textAlign: 'right', color: '#1a3af5' }}>
+                      <Typography variant="h6" fontWeight={800} sx={{ minWidth: 80, textAlign: 'right', color: '#03288C' }}>
                         ₹{(item.price * item.quantity).toLocaleString()}
                       </Typography>
 
@@ -139,7 +139,7 @@ const Cart = () => {
                 minWidth: { md: 340 },
                 position: 'sticky',
                 top: 100,
-                border: '2px solid rgba(26,58,245,0.1)',
+                border: '2px solid rgba(15,43,102,0.1)',
               }}
             >
               <CardContent sx={{ p: 3 }}>
@@ -162,7 +162,7 @@ const Cart = () => {
 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
                   <Typography variant="h6" fontWeight={800}>Total</Typography>
-                  <Typography variant="h6" fontWeight={800} sx={{ color: '#1a3af5' }}>
+                  <Typography variant="h6" fontWeight={800} sx={{ color: '#03288C' }}>
                     ₹{total.toFixed(2)}
                   </Typography>
                 </Box>
@@ -174,11 +174,11 @@ const Cart = () => {
                   endIcon={<ArrowForward />}
                   onClick={handleCheckout}
                   sx={{
-                    bgcolor: '#1a3af5',
-                    borderRadius: '30px',
+                    bgcolor: '#03288C',
+                    borderRadius: '6px',
                     py: 1.5,
                     fontWeight: 700,
-                    '&:hover': { bgcolor: '#0a2ae5' },
+                    '&:hover': { bgcolor: '#021A66' },
                   }}
                 >
                   Proceed to Checkout

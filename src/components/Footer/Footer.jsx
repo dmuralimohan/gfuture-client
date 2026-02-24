@@ -18,7 +18,7 @@ const Footer = () => {
     <Box
       component="footer"
       sx={{
-        background: 'linear-gradient(180deg, #0a1628 0%, #0d1b33 100%)',
+        background: '#0E0E2E',
         color: '#fff',
         pt: 8,
         pb: 4,
@@ -35,24 +35,13 @@ const Footer = () => {
               viewport={{ once: true }}
             >
               {/* Logo */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
+              <Box sx={{ mb: 2 }}>
                 <Box
-                  sx={{
-                    width: 50,
-                    height: 50,
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #1a3af5, #4d6af7)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#fff',
-                    fontWeight: 800,
-                    fontFamily: 'Poppins',
-                    fontSize: 22,
-                  }}
-                >
-                  G
-                </Box>
+                  component="img"
+                  src="/logo.png"
+                  alt="G-Future"
+                  sx={{ height: 96, width: 'auto' }}
+                />
               </Box>
               <Typography
                 variant="body2"
@@ -90,7 +79,7 @@ const Footer = () => {
                       textDecoration: 'none',
                       letterSpacing: '0.05em',
                       transition: 'color 0.2s',
-                      '&:hover': { color: '#4d6af7' },
+                      '&:hover': { color: '#1a56c4' },
                     }}
                   >
                     {link.label}

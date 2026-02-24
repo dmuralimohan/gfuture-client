@@ -53,13 +53,13 @@ const About = () => {
                   sx={{
                     borderRadius: 4,
                     height: '100%',
-                    border: '1px solid rgba(26,58,245,0.08)',
-                    '&:hover': { boxShadow: '0 8px 32px rgba(26,58,245,0.1)', transform: 'translateY(-4px)' },
+                    border: '1px solid rgba(15,43,102,0.08)',
+                    '&:hover': { boxShadow: '0 8px 32px rgba(15,43,102,0.1)', transform: 'translateY(-4px)' },
                     transition: 'all 0.3s ease',
                   }}
                 >
                   <CardContent sx={{ p: 3 }}>
-                    <Avatar sx={{ bgcolor: '#e8f0fe', color: '#1a3af5', mb: 2 }}>{value.icon}</Avatar>
+                    <Avatar sx={{ bgcolor: '#eaf1fb', color: '#03288C', mb: 2 }}>{value.icon}</Avatar>
                     <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>{value.title}</Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
                       {value.description}
@@ -77,7 +77,7 @@ const About = () => {
           transition={{ duration: 0.5, delay: 0.3 }}
           viewport={{ once: true }}
         >
-          <Card sx={{ mt: 6, borderRadius: 4, bgcolor: '#0a1628', color: '#fff' }}>
+          <Card sx={{ mt: 6, borderRadius: 4, bgcolor: '#03288C', color: '#fff' }}>
             <CardContent sx={{ p: { xs: 4, md: 6 }, textAlign: 'center' }}>
               <Typography variant="h4" fontWeight={800} sx={{ mb: 2 }}>
                 Join the Revolution

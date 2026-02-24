@@ -1,17 +1,17 @@
 :root {
-  --primary: #0a1628;
+  --primary: #1a3af5;
   --primary-blue: #1a3af5;
   --primary-blue-light: #4d6af7;
   --accent: #0066ff;
   --bg-gradient-start: #e8f0fe;
   --bg-gradient-end: #f5f8ff;
   --bg-light: #f0f4ff;
-  --text-dark: #0a1628;
+  --text-dark: #1a3af5;
   --text-muted: #5a6a80;
   --white: #ffffff;
-  --card-shadow: 0 4px 24px rgba(10, 22, 40, 0.08);
-  --card-shadow-hover: 0 8px 40px rgba(26, 58, 245, 0.15);
-  --border-radius: 16px;
+  --card-shadow: 0 4px 24px rgba(15, 43, 102, 0.08);
+  --card-shadow-hover: 0 8px 40px rgba(15, 43, 102, 0.15);
+  --border-radius: 12px;
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 

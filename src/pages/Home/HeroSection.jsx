@@ -1,6 +1,7 @@
 import { Box, Container, Typography, Button, Chip } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { CheckCircle } from '@mui/icons-material';
 
 const HeroSection = () => {
   const navigate = useNavigate();
@@ -8,7 +9,7 @@ const HeroSection = () => {
   return (
     <Box
       sx={{
-        background: 'linear-gradient(135deg, #e8f0fe 0%, #f0f4ff 40%, #e8f0fe 100%)',
+        background: 'linear-gradient(135deg, #eaf1fb 0%, #f0f4ff 40%, #eaf1fb 100%)',
         pt: { xs: 8, md: 12 },
         pb: { xs: 8, md: 14 },
         position: 'relative',
@@ -24,7 +25,7 @@ const HeroSection = () => {
           width: 400,
           height: 400,
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(26,58,245,0.05) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(15,43,102,0.05) 0%, transparent 70%)',
         }}
       />
 
@@ -35,16 +36,29 @@ const HeroSection = () => {
           transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
         >
           <Chip
+            icon={
+              <CheckCircle
+                sx={{
+                  fontSize: 18,
+                  color: '#D4A017 !important',
+                  filter: 'drop-shadow(0 0 6px rgba(212,160,23,0.7))',
+                }}
+              />
+            }
             label="NEXT GENERATION DIGITAL PLATFORM"
             sx={{
-              bgcolor: 'rgba(26,58,245,0.1)',
-              color: '#1a3af5',
+              bgcolor: 'rgba(15,43,102,0.08)',
+              color: '#03288C',
               fontWeight: 600,
               fontSize: '0.7rem',
               letterSpacing: '0.1em',
               mb: 3,
-              height: 32,
-              borderRadius: '16px',
+              height: 36,
+              borderRadius: '18px',
+              border: '1px solid rgba(212,160,23,0.3)',
+              '& .MuiChip-icon': {
+                ml: '8px',
+              },
             }}
           />
         </motion.div>
@@ -62,6 +76,10 @@ const HeroSection = () => {
               lineHeight: 1.05,
               mb: 3,
               maxWidth: 700,
+              background: 'linear-gradient(180deg, #0E0E2E 0%, #0E0E2E 40%, #03288C 60%, #0066CC 80%, #1E90FF 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
             }}
           >
             SHARED{' '}
@@ -69,20 +87,12 @@ const HeroSection = () => {
               GROWTH.
             </Box>
             <Box component="span" sx={{ display: 'block' }}>
-              <Box component="span" sx={{ color: '#0a1628' }}>
-                COLLECT
-              </Box>
-              <Box component="span" sx={{ color: '#1a3af5' }}>
-                IVE
-              </Box>
+              COLLECTIVE
             </Box>
             <Box
               component="span"
               sx={{
                 display: 'block',
-                background: 'linear-gradient(135deg, #1a3af5, #4d6af7)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
               }}
             >
               WEALTH.
@@ -121,12 +131,12 @@ const HeroSection = () => {
               size="large"
               onClick={() => navigate('/services')}
               sx={{
-                bgcolor: '#1a3af5',
+                bgcolor: '#03288C',
                 px: 4,
                 py: 1.5,
                 fontSize: '0.95rem',
-                borderRadius: '30px',
-                '&:hover': { bgcolor: '#0a2ae5', transform: 'translateY(-2px)' },
+                borderRadius: '6px',
+                '&:hover': { bgcolor: '#021A66', transform: 'translateY(-2px)' },
               }}
             >
               Explore Marketplace
@@ -136,16 +146,16 @@ const HeroSection = () => {
               size="large"
               onClick={() => navigate('/signup')}
               sx={{
-                borderColor: '#0a1628',
-                color: '#0a1628',
+                borderColor: '#03288C',
+                color: '#03288C',
                 px: 4,
                 py: 1.5,
                 fontSize: '0.95rem',
-                borderRadius: '30px',
+                borderRadius: '6px',
                 borderWidth: 2,
                 '&:hover': {
-                  borderColor: '#1a3af5',
-                  color: '#1a3af5',
+                  borderColor: '#1a56c4',
+                  color: '#1a56c4',
                   borderWidth: 2,
                   transform: 'translateY(-2px)',
                 },

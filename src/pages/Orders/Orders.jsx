@@ -87,7 +87,7 @@ const Orders = () => {
 
         {loading ? (
           <Box sx={{ textAlign: 'center', py: 10 }}>
-            <CircularProgress sx={{ color: '#1a3af5' }} />
+            <CircularProgress sx={{ color: '#03288C' }} />
             <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
               Loading orders...
             </Typography>
@@ -99,7 +99,7 @@ const Orders = () => {
               No orders yet
             </Typography>
             <Button variant="contained" onClick={() => navigate('/services')}
-              sx={{ bgcolor: '#1a3af5', borderRadius: '30px', mt: 2 }}>
+              sx={{ bgcolor: '#03288C', borderRadius: '6px', mt: 2 }}>
               Browse Services
             </Button>
           </Box>
@@ -115,8 +115,8 @@ const Orders = () => {
                 <Card
                   sx={{
                     borderRadius: 3,
-                    border: '1px solid rgba(26,58,245,0.06)',
-                    '&:hover': { boxShadow: '0 6px 24px rgba(26,58,245,0.08)' },
+                    border: '1px solid rgba(15,43,102,0.06)',
+                    '&:hover': { boxShadow: '0 6px 24px rgba(15,43,102,0.08)' },
                     transition: 'all 0.3s ease',
                   }}
                 >
@@ -147,7 +147,7 @@ const Orders = () => {
                           {order.date} at {order.time}
                         </Typography>
                       </Box>
-                      <Typography variant="subtitle2" fontWeight={800} sx={{ color: '#1a3af5', ml: 'auto' }}>
+                      <Typography variant="subtitle2" fontWeight={800} sx={{ color: '#03288C', ml: 'auto' }}>
                         ₹{order.amount} <Typography component="span" variant="caption" color="text.secondary">+ ₹{order.platformFee.toFixed(2)} fee</Typography>
                       </Typography>
                     </Box>

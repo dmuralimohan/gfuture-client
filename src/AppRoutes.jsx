@@ -19,7 +19,7 @@ const Checkout = lazy(() => import('./pages/Checkout/Checkout'));
 
 const Loading = () => (
   <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-    <CircularProgress sx={{ color: '#1a3af5' }} />
+    <CircularProgress sx={{ color: '#03288C' }} />
   </Box>
 );
 

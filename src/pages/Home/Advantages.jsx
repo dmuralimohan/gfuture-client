@@ -58,11 +58,11 @@ const Advantages = () => {
                   sx={{
                     width: 64,
                     height: 64,
-                    bgcolor: '#e8f0fe',
-                    color: '#1a3af5',
+                    bgcolor: '#eaf1fb',
+                    color: '#03288C',
                     mx: 'auto',
                     mb: 2,
-                    border: '2px solid rgba(26,58,245,0.1)',
+                    border: '2px solid rgba(15,43,102,0.1)',
                   }}
                 >
                   {iconMap[item.icon]}

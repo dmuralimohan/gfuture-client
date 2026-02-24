@@ -34,9 +34,9 @@ const HowItWorks = () => {
               <Card
                 sx={{
                   borderRadius: 4,
-                  border: '1px solid rgba(26,58,245,0.08)',
+                  border: '1px solid rgba(15,43,102,0.08)',
                   '&:hover': {
-                    boxShadow: '0 12px 40px rgba(26,58,245,0.1)',
+                    boxShadow: '0 12px 40px rgba(15,43,102,0.1)',
                     transform: 'translateY(-4px)',
                   },
                   transition: 'all 0.3s ease',
@@ -47,7 +47,7 @@ const HowItWorks = () => {
                     sx={{
                       width: 72,
                       height: 72,
-                      bgcolor: '#1a3af5',
+                      bgcolor: '#03288C',
                       color: '#fff',
                       fontFamily: 'Poppins',
                       fontWeight: 800,

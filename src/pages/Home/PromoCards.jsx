@@ -34,7 +34,7 @@ const PromoCards = () => {
                 display: 'flex',
                 '&:hover': {
                   transform: 'translateY(-6px)',
-                  boxShadow: '0 12px 40px rgba(26,58,245,0.15)',
+                  boxShadow: '0 12px 40px rgba(15,43,102,0.15)',
                 },
                 transition: 'all 0.3s ease',
               }}
@@ -44,7 +44,7 @@ const PromoCards = () => {
                 <Box>
                   <Typography
                     variant="overline"
-                    sx={{ fontWeight: 700, letterSpacing: '0.1em', color: '#0a1628' }}
+                    sx={{ fontWeight: 700, letterSpacing: '0.1em', color: '#03288C' }}
                   >
                     {card.title}
                   </Typography>
@@ -60,12 +60,12 @@ const PromoCards = () => {
                   sx={{
                     alignSelf: 'flex-start',
                     mt: 2,
-                    bgcolor: '#0a1628',
+                    bgcolor: '#03288C',
                     color: '#fff',
-                    borderRadius: '20px',
+                    borderRadius: '6px',
                     px: 2.5,
                     fontSize: '0.75rem',
-                    '&:hover': { bgcolor: '#1a3af5' },
+                    '&:hover': { bgcolor: '#03288C' },
                   }}
                 >
                   {card.cta}

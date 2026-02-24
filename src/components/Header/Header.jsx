@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
   AppBar,
   Toolbar,
@@ -71,9 +70,9 @@ const Header = () => {
         position="sticky"
         elevation={0}
         sx={{
-          background: 'rgba(255,255,255,0.85)',
+          background: 'rgba(255,255,255,0.92)',
           backdropFilter: 'blur(20px)',
-          borderBottom: '1px solid rgba(26,58,245,0.08)',
+          borderBottom: '1px solid rgba(15,43,102,0.08)',
         }}
       >
         <Toolbar sx={{ maxWidth: 1280, width: '100%', mx: 'auto', px: { xs: 2, md: 3 } }}>
@@ -81,36 +80,17 @@ const Header = () => {
           <Box
             component={Link}
             to="/"
-            sx={{ display: 'flex', alignItems: 'center', gap: 1, textDecoration: 'none', mr: 4 }}
+            sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none', mr: 4 }}
           >
             <Box
+              component="img"
+              src="/logo-header.png"
+              alt="G-Future"
               sx={{
-                width: 40,
-                height: 40,
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #0a1628, #1a3af5)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#fff',
-                fontWeight: 800,
-                fontFamily: 'Poppins',
-                fontSize: 18,
+                height: { xs: 56, md: 64 },
+                width: 'auto',
               }}
-            >
-              G
-            </Box>
-            <Typography
-              variant="h6"
-              sx={{
-                fontFamily: 'Poppins',
-                fontWeight: 700,
-                color: '#0a1628',
-                fontSize: '1.25rem',
-              }}
-            >
-              G-Futurē
-            </Typography>
+            />
           </Box>
 
           {/* Desktop Nav */}
@@ -124,7 +104,7 @@ const Header = () => {
                     component={Link}
                     to={link.path}
                     sx={{
-                      color: isActive ? '#1a3af5' : '#5a6a80',
+                      color: isActive ? '#03288C' : '#5a6a80',
                       fontWeight: isActive ? 700 : 500,
                       fontSize: '0.8rem',
                       letterSpacing: '0.06em',
@@ -139,11 +119,11 @@ const Header = () => {
                             left: '20%',
                             width: '60%',
                             height: 2,
-                            bgcolor: '#1a3af5',
+                            bgcolor: '#03288C',
                             borderRadius: 1,
                           }
                         : {},
-                      '&:hover': { color: '#1a3af5', background: 'transparent' },
+                      '&:hover': { color: '#1a56c4', background: 'transparent' },
                     }}
                   >
                     {link.label}
@@ -155,7 +135,7 @@ const Header = () => {
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
             {/* Cart */}
-            <IconButton onClick={() => navigate('/cart')} sx={{ color: '#0a1628' }}>
+            <IconButton onClick={() => navigate('/cart')} sx={{ color: '#03288C' }}>
               <Badge badgeContent={totalItems} color="primary">
                 <ShoppingCart />
               </Badge>
@@ -168,7 +148,7 @@ const Header = () => {
                     sx={{
                       width: 36,
                       height: 36,
-                      bgcolor: '#1a3af5',
+                      bgcolor: '#03288C',
                       fontSize: 14,
                       fontWeight: 700,
                     }}
@@ -215,10 +195,10 @@ const Header = () => {
                 <Button
                   onClick={() => navigate('/login')}
                   sx={{
-                    color: '#0a1628',
+                    color: '#03288C',
                     fontWeight: 600,
                     fontSize: '0.85rem',
-                    '&:hover': { background: 'transparent', color: '#1a3af5' },
+                    '&:hover': { background: 'transparent', color: '#1a56c4' },
                   }}
                 >
                   Log in
@@ -227,11 +207,11 @@ const Header = () => {
                   variant="contained"
                   onClick={() => navigate('/signup')}
                   sx={{
-                    bgcolor: '#0a1628',
-                    borderRadius: '24px',
+                    bgcolor: '#03288C',
+                    borderRadius: '6px',
                     px: 3,
                     fontSize: '0.85rem',
-                    '&:hover': { bgcolor: '#1a3af5' },
+                    '&:hover': { bgcolor: '#021A66' },
                   }}
                 >
                   Join Platform
@@ -240,7 +220,7 @@ const Header = () => {
             )}
 
             {isMobile && (
-              <IconButton onClick={() => setDrawerOpen(true)} sx={{ color: '#0a1628' }}>
+              <IconButton onClick={() => setDrawerOpen(true)} sx={{ color: '#03288C' }}>
                 <MenuIcon />
               </IconButton>
             )}
@@ -253,10 +233,15 @@ const Header = () => {
         anchor="right"
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        PaperProps={{ sx: { width: 280, borderRadius: '16px 0 0 16px' } }}
+        PaperProps={{ sx: { width: 280, borderRadius: '12px 0 0 12px' } }}
       >
         <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6" fontWeight={700}>Menu</Typography>
+          <Box
+            component="img"
+            src="/logo-header.png"
+            alt="G-Future"
+            sx={{ height: 48, width: 'auto' }}
+          />
           <IconButton onClick={() => setDrawerOpen(false)}><Close /></IconButton>
         </Box>
         <Divider />
@@ -271,8 +256,8 @@ const Header = () => {
                 borderRadius: 2,
                 mx: 1,
                 mb: 0.5,
-                color: location.pathname === link.path ? '#1a3af5' : '#0a1628',
-                bgcolor: location.pathname === link.path ? 'rgba(26,58,245,0.06)' : 'transparent',
+                color: location.pathname === link.path ? '#03288C' : '#5a6a80',
+                bgcolor: location.pathname === link.path ? 'rgba(15,43,102,0.06)' : 'transparent',
               }}
             >
               <ListItemIcon sx={{ color: 'inherit', minWidth: 40 }}>{link.icon}</ListItemIcon>

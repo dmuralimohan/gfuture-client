@@ -214,16 +214,16 @@ const ServiceDetail = () => {
               <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 1.5, mb: 4 }}>
                 {service.includes.map((item) => (
                   <Box key={item} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CheckCircle sx={{ fontSize: 18, color: '#1a3af5' }} />
+                    <CheckCircle sx={{ fontSize: 18, color: '#03288C' }} />
                     <Typography variant="body2">{item}</Typography>
                   </Box>
                 ))}
               </Box>
 
               {/* Warranty */}
-              <Card sx={{ borderRadius: 3, bgcolor: '#f0f4ff', border: '1px solid rgba(26,58,245,0.1)', p: 2, mb: 4 }}>
+              <Card sx={{ borderRadius: 3, bgcolor: '#f0f4ff', border: '1px solid rgba(15,43,102,0.1)', p: 2, mb: 4 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <Shield sx={{ color: '#1a3af5' }} />
+                  <Shield sx={{ color: '#03288C' }} />
                   <Box>
                     <Typography variant="subtitle2" fontWeight={700}>
                       {service.warranty} Warranty
@@ -249,11 +249,11 @@ const ServiceDetail = () => {
                   borderRadius: 4,
                   position: 'sticky',
                   top: 100,
-                  border: '2px solid rgba(26,58,245,0.1)',
+                  border: '2px solid rgba(15,43,102,0.1)',
                 }}
               >
                 <CardContent sx={{ p: 3 }}>
-                  <Typography variant="h4" fontWeight={800} sx={{ color: '#1a3af5', mb: 0.5 }}>
+                  <Typography variant="h4" fontWeight={800} sx={{ color: '#03288C', mb: 0.5 }}>
                     ₹{service.price.toLocaleString()}
                   </Typography>
                   <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 3 }}>
@@ -267,13 +267,13 @@ const ServiceDetail = () => {
                     startIcon={<ShoppingCart />}
                     onClick={handleAddToCart}
                     sx={{
-                      bgcolor: '#1a3af5',
-                      borderRadius: '30px',
+                      bgcolor: '#03288C',
+                      borderRadius: '6px',
                       py: 1.5,
                       fontSize: '1rem',
                       fontWeight: 700,
                       mb: 2,
-                      '&:hover': { bgcolor: '#0a2ae5' },
+                      '&:hover': { bgcolor: '#021A66' },
                     }}
                   >
                     Add to Cart
@@ -288,14 +288,14 @@ const ServiceDetail = () => {
                       if (isAuthenticated) navigate('/cart');
                     }}
                     sx={{
-                      borderColor: '#0a1628',
-                      color: '#0a1628',
-                      borderRadius: '30px',
+                      borderColor: '#03288C',
+                      color: '#03288C',
+                      borderRadius: '6px',
                       py: 1.5,
                       fontSize: '1rem',
                       fontWeight: 700,
                       borderWidth: 2,
-                      '&:hover': { borderColor: '#1a3af5', color: '#1a3af5', borderWidth: 2 },
+                      '&:hover': { borderColor: '#03288C', color: '#03288C', borderWidth: 2 },
                     }}
                   >
                     Book Now
@@ -308,7 +308,7 @@ const ServiceDetail = () => {
                     Service Provider
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    <Avatar sx={{ bgcolor: '#1a3af5', width: 44, height: 44 }}>
+                    <Avatar sx={{ bgcolor: '#03288C', width: 44, height: 44 }}>
                       {service.provider.name[0]}
                     </Avatar>
                     <Box>
@@ -316,7 +316,7 @@ const ServiceDetail = () => {
                         <Typography variant="subtitle2" fontWeight={700}>
                           {service.provider.name}
                         </Typography>
-                        <Verified sx={{ fontSize: 16, color: '#1a3af5' }} />
+                        <Verified sx={{ fontSize: 16, color: '#03288C' }} />
                       </Box>
                       <Typography variant="caption" color="text.secondary">
                         ⭐ {service.provider.rating} · {service.provider.jobs.toLocaleString()} jobs
@@ -340,7 +340,7 @@ const ServiceDetail = () => {
                 <Grid size={{ xs: 12, sm: 6, md: 4 }} key={s.id}>
                   <motion.div whileHover={{ y: -6 }} transition={{ duration: 0.2 }}>
                     <Card
-                      sx={{ borderRadius: 3, cursor: 'pointer', '&:hover': { boxShadow: '0 8px 30px rgba(26,58,245,0.1)' } }}
+                      sx={{ borderRadius: 3, cursor: 'pointer', '&:hover': { boxShadow: '0 8px 30px rgba(15,43,102,0.1)' } }}
                       onClick={() => navigate(`/services/${s.id}`)}
                     >
                       <Box
@@ -351,7 +351,7 @@ const ServiceDetail = () => {
                       />
                       <CardContent>
                         <Typography variant="subtitle1" fontWeight={700}>{s.name}</Typography>
-                        <Typography variant="h6" fontWeight={800} sx={{ color: '#1a3af5' }}>
+                        <Typography variant="h6" fontWeight={800} sx={{ color: '#03288C' }}>
                           ₹{s.price.toLocaleString()}
                         </Typography>
                       </CardContent>
