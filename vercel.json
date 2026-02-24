@@ -1,15 +1,6 @@
 {
-  "buildCommand": "vite build",
-  "outputDirectory": "dist",
-  "framework": null,
-  "functions": {
-    "api/[...path].js": {
-      "memory": 256,
-      "maxDuration": 30
-    }
-  },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/api/:path*", "destination": "http://3.95.226.54/api/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
