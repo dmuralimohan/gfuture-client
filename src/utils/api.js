@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://3.95.226.54';
+// Empty base URL — requests go to same origin (Vercel), then vercel.json rewrites proxy to EC2
+const API_BASE_URL = '';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -28,7 +29,7 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       try {
         const refreshToken = localStorage.getItem('refreshToken');
-        const { data } = await axios.post(`${API_BASE_URL}/api/auth/refresh`, { refreshToken });
+        const { data } = await axios.post('/api/auth/refresh', { refreshToken });
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('refreshToken', data.refreshToken);
         originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
