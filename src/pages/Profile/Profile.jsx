@@ -49,6 +49,18 @@ const Profile = () => {
     phone: user?.phone || '',
     profile_picture: user?.profile_picture || '',
   });
+
+  // Sync form with user data when it loads or changes
+  useEffect(() => {
+    if (user) {
+      setForm({
+        name: user.name || '',
+        phone: user.phone || '',
+        profile_picture: user.profile_picture || '',
+      });
+    }
+  }, [user]);
+
   const [message, setMessage] = useState({ text: '', severity: 'success' });
   const [currentPlan, setCurrentPlan] = useState(null);
   const [planLoading, setPlanLoading] = useState(false);
