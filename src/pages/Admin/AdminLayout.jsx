@@ -30,6 +30,8 @@ import {
   ArrowBack,
   AdminPanelSettings,
   Payment,
+  CardMembership,
+  LocalOffer,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 
@@ -44,6 +46,8 @@ const menuItems = [
   { label: 'Categories', path: '/admin/categories', icon: <Category /> },
   { label: 'Analytics', path: '/admin/analytics', icon: <BarChart /> },
   { label: 'Payments', path: '/admin/payments', icon: <Payment /> },
+  { label: 'Plans', path: '/admin/plans', icon: <CardMembership /> },
+  { label: 'Offers', path: '/admin/offers', icon: <LocalOffer /> },
 ];
 
 const AdminLayout = () => {
@@ -60,14 +64,14 @@ const AdminLayout = () => {
   };
 
   const drawerContent = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Logo Section */}
-      <Box sx={{ p: 2.5, display: 'flex', alignItems: 'center', gap: 1.5 }}>
-        <Avatar sx={{ bgcolor: '#03288C', width: 40, height: 40 }}>
+    <Box sx={ { height: '100%', display: 'flex', flexDirection: 'column' } }>
+      {/* Logo Section */ }
+      <Box sx={ { p: 2.5, display: 'flex', alignItems: 'center', gap: 1.5 } }>
+        <Avatar sx={ { bgcolor: '#03288C', width: 40, height: 40 } }>
           <AdminPanelSettings />
         </Avatar>
         <Box>
-          <Typography variant="subtitle1" fontWeight={800} color="#03288C">
+          <Typography variant="subtitle1" fontWeight={ 800 } color="#03288C">
             G-Future
           </Typography>
           <Typography variant="caption" color="text.secondary">
@@ -77,20 +81,20 @@ const AdminLayout = () => {
       </Box>
       <Divider />
 
-      {/* Navigation */}
-      <List sx={{ flex: 1, px: 1.5, py: 1 }}>
-        {menuItems.map((item) => {
+      {/* Navigation */ }
+      <List sx={ { flex: 1, px: 1.5, py: 1 } }>
+        { menuItems.map((item) => {
           const isActive =
             item.path === '/admin'
               ? location.pathname === '/admin'
               : location.pathname.startsWith(item.path);
           return (
-            <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
+            <ListItem key={ item.path } disablePadding sx={ { mb: 0.5 } }>
               <ListItemButton
-                component={Link}
-                to={item.path}
-                onClick={() => isMobile && setMobileOpen(false)}
-                sx={{
+                component={ Link }
+                to={ item.path }
+                onClick={ () => isMobile && setMobileOpen(false) }
+                sx={ {
                   borderRadius: 2,
                   py: 1.2,
                   bgcolor: isActive ? 'rgba(3, 40, 140, 0.08)' : 'transparent',
@@ -98,92 +102,92 @@ const AdminLayout = () => {
                   '&:hover': {
                     bgcolor: isActive ? 'rgba(3, 40, 140, 0.12)' : 'rgba(0,0,0,0.04)',
                   },
-                }}
+                } }
               >
-                <ListItemIcon sx={{ color: 'inherit', minWidth: 40 }}>{item.icon}</ListItemIcon>
+                <ListItemIcon sx={ { color: 'inherit', minWidth: 40 } }>{ item.icon }</ListItemIcon>
                 <ListItemText
-                  primary={item.label}
-                  primaryTypographyProps={{ fontWeight: isActive ? 700 : 500, fontSize: '0.9rem' }}
+                  primary={ item.label }
+                  primaryTypographyProps={ { fontWeight: isActive ? 700 : 500, fontSize: '0.9rem' } }
                 />
               </ListItemButton>
             </ListItem>
           );
-        })}
+        }) }
       </List>
 
       <Divider />
-      {/* User Info */}
-      <Box sx={{ p: 2 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
-          <Avatar sx={{ bgcolor: '#03288C', width: 36, height: 36, fontSize: 14 }}>
-            {user?.name?.[0]?.toUpperCase() || 'A'}
+      {/* User Info */ }
+      <Box sx={ { p: 2 } }>
+        <Box sx={ { display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 } }>
+          <Avatar sx={ { bgcolor: '#03288C', width: 36, height: 36, fontSize: 14 } }>
+            { user?.name?.[0]?.toUpperCase() || 'A' }
           </Avatar>
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography variant="body2" fontWeight={700} noWrap>
-              {user?.name}
+          <Box sx={ { flex: 1, minWidth: 0 } }>
+            <Typography variant="body2" fontWeight={ 700 } noWrap>
+              { user?.name }
             </Typography>
-            <Chip label="Admin" size="small" sx={{ height: 20, fontSize: 10, bgcolor: '#03288C', color: '#fff' }} />
+            <Chip label="Admin" size="small" sx={ { height: 20, fontSize: 10, bgcolor: '#03288C', color: '#fff' } } />
           </Box>
         </Box>
         <ListItemButton
-          onClick={handleLogout}
-          sx={{ borderRadius: 2, py: 0.8, color: '#d32f2f', '&:hover': { bgcolor: 'rgba(211,47,47,0.08)' } }}
+          onClick={ handleLogout }
+          sx={ { borderRadius: 2, py: 0.8, color: '#d32f2f', '&:hover': { bgcolor: 'rgba(211,47,47,0.08)' } } }
         >
-          <ListItemIcon sx={{ color: 'inherit', minWidth: 36 }}>
+          <ListItemIcon sx={ { color: 'inherit', minWidth: 36 } }>
             <Logout fontSize="small" />
           </ListItemIcon>
-          <ListItemText primary="Logout" primaryTypographyProps={{ fontSize: '0.85rem', fontWeight: 600 }} />
+          <ListItemText primary="Logout" primaryTypographyProps={ { fontSize: '0.85rem', fontWeight: 600 } } />
         </ListItemButton>
       </Box>
     </Box>
   );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#f0f4ff' }}>
-      {/* Sidebar */}
-      {isMobile ? (
+    <Box sx={ { display: 'flex', minHeight: '100vh', bgcolor: '#f0f4ff' } }>
+      {/* Sidebar */ }
+      { isMobile ? (
         <Drawer
           variant="temporary"
-          open={mobileOpen}
-          onClose={() => setMobileOpen(false)}
-          ModalProps={{ keepMounted: true }}
-          PaperProps={{ sx: { width: DRAWER_WIDTH, borderRight: '1px solid rgba(0,0,0,0.06)' } }}
+          open={ mobileOpen }
+          onClose={ () => setMobileOpen(false) }
+          ModalProps={ { keepMounted: true } }
+          PaperProps={ { sx: { width: DRAWER_WIDTH, borderRight: '1px solid rgba(0,0,0,0.06)' } } }
         >
-          {drawerContent}
+          { drawerContent }
         </Drawer>
       ) : (
         <Drawer
           variant="permanent"
-          PaperProps={{
+          PaperProps={ {
             sx: {
               width: DRAWER_WIDTH,
               borderRight: '1px solid rgba(0,0,0,0.06)',
               bgcolor: '#ffffff',
             },
-          }}
+          } }
         >
-          {drawerContent}
+          { drawerContent }
         </Drawer>
-      )}
+      ) }
 
-      {/* Main Content */}
-      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', ml: { md: `${DRAWER_WIDTH}px` } }}>
+      {/* Main Content */ }
+      <Box sx={ { flex: 1, display: 'flex', flexDirection: 'column', ml: { md: `${DRAWER_WIDTH}px` } } }>
         <AppBar
           position="sticky"
-          elevation={0}
-          sx={{
+          elevation={ 0 }
+          sx={ {
             bgcolor: 'rgba(255,255,255,0.9)',
             backdropFilter: 'blur(10px)',
             borderBottom: '1px solid rgba(0,0,0,0.06)',
-          }}
+          } }
         >
           <Toolbar>
-            {isMobile && (
-              <IconButton onClick={() => setMobileOpen(true)} sx={{ mr: 1, color: '#03288C' }}>
+            { isMobile && (
+              <IconButton onClick={ () => setMobileOpen(true) } sx={ { mr: 1, color: '#03288C' } }>
                 <MenuIcon />
               </IconButton>
-            )}
-            <IconButton component={Link} to="/" sx={{ mr: 1, color: '#5a6a80' }} size="small">
+            ) }
+            <IconButton component={ Link } to="/" sx={ { mr: 1, color: '#5a6a80' } } size="small">
               <ArrowBack fontSize="small" />
             </IconButton>
             <Typography variant="body2" color="text.secondary">
@@ -192,7 +196,7 @@ const AdminLayout = () => {
           </Toolbar>
         </AppBar>
 
-        <Box sx={{ flex: 1, p: { xs: 2, md: 3 }, maxWidth: 1400, width: '100%', mx: 'auto' }}>
+        <Box sx={ { flex: 1, p: { xs: 2, md: 3 }, maxWidth: 1400, width: '100%', mx: 'auto' } }>
           <Outlet />
         </Box>
       </Box>
