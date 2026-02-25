@@ -33,7 +33,7 @@ const Categories = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const { data } = await api.get('/api/categories');
+        const { data } = await api.cachedGet('/api/categories');
         // Map backend categories, keeping icon from fallback if available
         const mapped = data.categories.map((cat) => {
           const fallback = fallbackCategories.find((f) => f.id === cat.id);
@@ -48,48 +48,48 @@ const Categories = () => {
   }, []);
 
   return (
-    <Box sx={{ py: 8, background: 'transparent' }}>
+    <Box sx={ { py: 8, background: 'transparent' } }>
       <Container maxWidth="lg">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
+          initial={ { opacity: 0, y: 20 } }
+          whileInView={ { opacity: 1, y: 0 } }
+          transition={ { duration: 0.5 } }
+          viewport={ { once: true } }
         >
           <Typography
             variant="h6"
-            sx={{
+            sx={ {
               textAlign: 'center',
               fontStyle: 'italic',
               color: '#5a6a80',
               mb: 5,
               fontWeight: 400,
-            }}
+            } }
           >
             What are you looking for?
           </Typography>
         </motion.div>
 
         <Box
-          sx={{
+          sx={ {
             display: 'flex',
             flexWrap: 'wrap',
             justifyContent: 'center',
             gap: { xs: 3, md: 4 },
-          }}
+          } }
         >
-          {categories.map((cat, index) => (
+          { categories.map((cat, index) => (
             <motion.div
-              key={cat.id}
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4, delay: index * 0.06 }}
-              viewport={{ once: true }}
-              whileHover={{ scale: 1.08 }}
+              key={ cat.id }
+              initial={ { opacity: 0, scale: 0.8 } }
+              whileInView={ { opacity: 1, scale: 1 } }
+              transition={ { duration: 0.4, delay: index * 0.06 } }
+              viewport={ { once: true } }
+              whileHover={ { scale: 1.08 } }
             >
               <Box
-                onClick={() => navigate(`/services?category=${cat.id}`)}
-                sx={{
+                onClick={ () => navigate(`/services?category=${cat.id}`) }
+                sx={ {
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
@@ -97,10 +97,10 @@ const Categories = () => {
                   cursor: 'pointer',
                   width: 100,
                   textAlign: 'center',
-                }}
+                } }
               >
                 <Avatar
-                  sx={{
+                  sx={ {
                     width: 72,
                     height: 72,
                     bgcolor: '#fff',
@@ -112,24 +112,24 @@ const Categories = () => {
                       borderColor: '#03288C',
                       boxShadow: '0 6px 24px rgba(15,43,102,0.15)',
                     },
-                  }}
+                  } }
                 >
-                  {iconMap[cat.icon]}
+                  { iconMap[cat.icon] }
                 </Avatar>
                 <Typography
                   variant="caption"
-                  sx={{
+                  sx={ {
                     fontWeight: 600,
                     color: '#03288C',
                     lineHeight: 1.3,
                     fontSize: '0.7rem',
-                  }}
+                  } }
                 >
-                  {cat.name}
+                  { cat.name }
                 </Typography>
               </Box>
             </motion.div>
-          ))}
+          )) }
         </Box>
       </Container>
     </Box>

@@ -21,7 +21,7 @@ const Pricing = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const { data } = await api.get('/api/plans');
+        const { data } = await api.cachedGet('/api/plans');
         setPlans(data.plans || []);
 
         if (isAuthenticated) {

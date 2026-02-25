@@ -32,7 +32,7 @@ const OffersSection = () => {
     useEffect(() => {
         const fetchOffers = async () => {
             try {
-                const { data } = await api.get('/api/offers');
+                const { data } = await api.cachedGet('/api/offers');
                 setOffers(data.offers || []);
             } catch {
                 // Silently fail — section simply won't render

@@ -8,6 +8,34 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
+// ─── In-memory GET cache ──────────────────────────────────────
+const cache = new Map();
+const CACHE_TTL = 60_000; // 1 minute
+
+function getCacheKey(config) {
+  const params = config.params ? JSON.stringify(config.params, Object.keys(config.params).sort()) : '';
+  return `${config.url}|${params}`;
+}
+
+/**
+ * Cached GET — returns cached response for identical URL+params within TTL.
+ * Usage: api.cachedGet('/api/services', { params: { ... } })
+ */
+api.cachedGet = (url, config = {}) => {
+  const key = getCacheKey({ url, ...config });
+  const entry = cache.get(key);
+  if (entry && Date.now() - entry.time < CACHE_TTL) {
+    return Promise.resolve(entry.response);
+  }
+  return api.get(url, config).then((response) => {
+    cache.set(key, { response, time: Date.now() });
+    return response;
+  });
+};
+
+/** Clear cache (call after mutations like admin CRUD) */
+api.clearCache = () => cache.clear();
+
 // Request interceptor — attach token
 api.interceptors.request.use(
   (config) => {
