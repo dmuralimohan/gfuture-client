@@ -165,7 +165,7 @@ const AdminPlans = () => {
                         <Table>
                             <TableHead>
                                 <TableRow sx={ { bgcolor: 'rgba(0,0,0,0.02)' } }>
-                                    <TableCell sx={ { fontWeight: 700 } }>ID</TableCell>
+                                    <TableCell sx={ { fontWeight: 700 } }>S.No</TableCell>
                                     <TableCell sx={ { fontWeight: 700 } }>Name</TableCell>
                                     <TableCell sx={ { fontWeight: 700 } }>Price</TableCell>
                                     <TableCell sx={ { fontWeight: 700 } }>Target</TableCell>
@@ -177,10 +177,10 @@ const AdminPlans = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                { plans.map((plan) => (
+                                { plans.map((plan, index) => (
                                     <Fragment key={ plan.id }>
                                         <TableRow hover>
-                                            <TableCell>{ plan.id }</TableCell>
+                                            <TableCell>{ index + 1 }</TableCell>
                                             <TableCell>
                                                 <Typography variant="body2" fontWeight={ 600 }>{ plan.name }</Typography>
                                                 { plan.description && (
