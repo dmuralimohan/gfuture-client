@@ -32,6 +32,7 @@ import {
   WorkOutline,
   AttachMoney,
   Info,
+  AdminPanelSettings,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
@@ -87,7 +88,7 @@ const Header = () => {
               src="/logo-header.png"
               alt="G-Future"
               sx={{
-                height: { xs: 56, md: 64 },
+                height: { xs: 36, md: 44 },
                 width: 'auto',
               }}
             />
@@ -179,6 +180,12 @@ const Header = () => {
                       Provider Dashboard
                     </MenuItem>
                   )}
+                  {user?.role === 'admin' && (
+                    <MenuItem onClick={() => { handleCloseMenu(); navigate('/admin'); }}>
+                      <ListItemIcon><AdminPanelSettings fontSize="small" /></ListItemIcon>
+                      Admin Panel
+                    </MenuItem>
+                  )}
                   <MenuItem onClick={() => { handleCloseMenu(); navigate('/orders'); }}>
                     <ListItemIcon><Store fontSize="small" /></ListItemIcon>
                     My Orders
@@ -240,7 +247,7 @@ const Header = () => {
             component="img"
             src="/logo-header.png"
             alt="G-Future"
-            sx={{ height: 48, width: 'auto' }}
+            sx={{ height: 32, width: 'auto' }}
           />
           <IconButton onClick={() => setDrawerOpen(false)}><Close /></IconButton>
         </Box>

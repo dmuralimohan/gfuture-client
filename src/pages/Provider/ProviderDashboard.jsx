@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Box,
   Container,
@@ -13,27 +13,38 @@ import {
   Tabs,
   Avatar,
   Button,
-  LinearProgress,
   Divider,
   CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  MenuItem,
+  IconButton,
+  Alert,
+  Snackbar,
+  Switch,
+  FormControlLabel,
+  Tooltip,
+  InputAdornment,
 } from '@mui/material';
 import {
-  Dashboard,
   Assignment,
   TrendingUp,
   Star,
-  CheckCircle,
-  Schedule,
   CurrencyRupee,
+  Add,
+  Edit,
+  Delete,
+  Build,
+  Close,
+  AccessTime,
+  Shield,
+  Category,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/api';
-
-const mockOrders = [
-  { id: 'ORD001', customer: 'Priya S.', service: 'Washing Machine Repair', status: 'pending', amount: 399, date: '2026-02-18' },
-  { id: 'ORD002', customer: 'Rahul M.', service: 'AC Service', status: 'completed', amount: 549, date: '2026-02-17' },
-  { id: 'ORD003', customer: 'Sneha K.', service: 'Washing Machine Repair', status: 'in-progress', amount: 399, date: '2026-02-16' },
-];
 
 const statusColors = {
   pending: '#f59e0b',
@@ -42,13 +53,50 @@ const statusColors = {
   cancelled: '#ef4444',
 };
 
+const emptyService = {
+  name: '',
+  category_id: '',
+  price: '',
+  description: '',
+  duration: '',
+  warranty: '',
+  image: '',
+  includes: [''],
+};
+
 const ProviderDashboard = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const [tab, setTab] = useState(0);
+
+  // Orders
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
 
+  // Services
+  const [services, setServices] = useState([]);
+  const [loadingServices, setLoadingServices] = useState(true);
+  const [categories, setCategories] = useState([]);
+
+  // Dialog state
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingService, setEditingService] = useState(null);
+  const [formData, setFormData] = useState(emptyService);
+  const [saving, setSaving] = useState(false);
+
+  // Delete confirm
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletingService, setDeletingService] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
+  // Snackbar
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+
+  const showSnackbar = (message, severity = 'success') => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  // Fetch orders
   useEffect(() => {
     if (!isAuthenticated || user?.role !== 'provider') return;
     const fetchOrders = async () => {
@@ -73,16 +121,48 @@ const ProviderDashboard = () => {
     fetchOrders();
   }, [isAuthenticated, user]);
 
+  // Fetch provider's services
+  const fetchServices = useCallback(async () => {
+    if (!user?.id) return;
+    setLoadingServices(true);
+    try {
+      const { data } = await api.get(`/api/services?provider_id=${user.id}&limit=100`);
+      setServices(data.services || []);
+    } catch {
+      setServices([]);
+    } finally {
+      setLoadingServices(false);
+    }
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!isAuthenticated || user?.role !== 'provider') return;
+    fetchServices();
+  }, [isAuthenticated, user, fetchServices]);
+
+  // Fetch categories for the dropdown
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const { data } = await api.get('/api/categories');
+        setCategories(data.categories || []);
+      } catch {
+        setCategories([]);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  // Auth guard
   useEffect(() => {
     if (!isAuthenticated || user?.role !== 'provider') {
       navigate('/login');
     }
   }, [isAuthenticated, user, navigate]);
 
-  if (!isAuthenticated || user?.role !== 'provider') {
-    return null;
-  }
+  if (!isAuthenticated || user?.role !== 'provider') return null;
 
+  // Stats calculations
   const totalOrders = orders.length;
   const completedOrders = orders.filter((o) => o.status === 'completed').length;
   const revenue = orders.filter((o) => o.status === 'completed').reduce((acc, o) => acc + (o.amount || 0), 0);
@@ -91,9 +171,104 @@ const ProviderDashboard = () => {
   const stats = [
     { label: 'Total Orders', value: String(totalOrders), icon: <Assignment />, color: '#03288C' },
     { label: 'Revenue', value: `₹${revenue.toLocaleString()}`, icon: <CurrencyRupee />, color: '#22c55e' },
-    { label: 'Rating', value: '4.8', icon: <Star />, color: '#f59e0b' },
-    { label: 'Completion', value: `${completionRate}%`, icon: <TrendingUp />, color: '#8b5cf6' },
+    { label: 'My Services', value: String(services.length), icon: <Build />, color: '#8b5cf6' },
+    { label: 'Completion', value: `${completionRate}%`, icon: <TrendingUp />, color: '#f59e0b' },
   ];
+
+  // --- Service form handlers ---
+  const openAddDialog = () => {
+    setEditingService(null);
+    setFormData({ ...emptyService, includes: [''] });
+    setDialogOpen(true);
+  };
+
+  const openEditDialog = (svc) => {
+    setEditingService(svc);
+    setFormData({
+      name: svc.name || '',
+      category_id: svc.category_id || '',
+      price: svc.price || '',
+      description: svc.description || '',
+      duration: svc.duration || '',
+      warranty: svc.warranty || '',
+      image: svc.image || '',
+      includes: Array.isArray(svc.includes) && svc.includes.length > 0 ? svc.includes : [''],
+    });
+    setDialogOpen(true);
+  };
+
+  const handleFormChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleIncludesChange = (index, value) => {
+    setFormData((prev) => {
+      const updated = [...prev.includes];
+      updated[index] = value;
+      return { ...prev, includes: updated };
+    });
+  };
+
+  const addIncludesItem = () => {
+    setFormData((prev) => ({ ...prev, includes: [...prev.includes, ''] }));
+  };
+
+  const removeIncludesItem = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      includes: prev.includes.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleSave = async () => {
+    if (!formData.name || !formData.category_id || !formData.price) {
+      showSnackbar('Please fill in name, category, and price', 'error');
+      return;
+    }
+    setSaving(true);
+    try {
+      const payload = {
+        ...formData,
+        price: Number(formData.price),
+        category_id: Number(formData.category_id),
+        includes: formData.includes.filter((i) => i.trim() !== ''),
+      };
+      if (editingService) {
+        await api.put(`/api/services/${editingService.id}`, payload);
+        showSnackbar('Service updated successfully');
+      } else {
+        await api.post('/api/services', payload);
+        showSnackbar('Service created successfully');
+      }
+      setDialogOpen(false);
+      fetchServices();
+    } catch (err) {
+      showSnackbar(err.response?.data?.message || 'Failed to save service', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const openDeleteDialog = (svc) => {
+    setDeletingService(svc);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!deletingService) return;
+    setDeleting(true);
+    try {
+      await api.delete(`/api/services/${deletingService.id}`);
+      showSnackbar('Service deleted');
+      setDeleteDialogOpen(false);
+      setDeletingService(null);
+      fetchServices();
+    } catch (err) {
+      showSnackbar(err.response?.data?.message || 'Failed to delete service', 'error');
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   return (
     <Box sx={{ py: 4, minHeight: '80vh' }}>
@@ -111,11 +286,7 @@ const ProviderDashboard = () => {
         <Grid container spacing={3} sx={{ mb: 4 }}>
           {stats.map((stat, index) => (
             <Grid size={{ xs: 6, md: 3 }} key={stat.label}>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
                 <Card sx={{ borderRadius: 3, border: '1px solid rgba(15,43,102,0.06)' }}>
                   <CardContent sx={{ p: 2.5, textAlign: 'center' }}>
                     <Avatar sx={{ width: 48, height: 48, bgcolor: `${stat.color}15`, color: stat.color, mx: 'auto', mb: 1.5 }}>
@@ -134,10 +305,11 @@ const ProviderDashboard = () => {
         <Card sx={{ borderRadius: 4 }}>
           <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ px: 3, pt: 1 }}>
             <Tab label="Recent Orders" />
-            <Tab label="Service Settings" />
+            <Tab label="My Services" />
           </Tabs>
           <Divider />
           <CardContent sx={{ p: 3 }}>
+            {/* ======= TAB 0: Recent Orders ======= */}
             {tab === 0 && (
               <Box>
                 {loadingOrders ? (
@@ -151,63 +323,350 @@ const ProviderDashboard = () => {
                     </Typography>
                   </Box>
                 ) : (
-                orders.map((order, index) => (
-                  <motion.div key={order.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 2,
-                        p: 2,
-                        borderRadius: 2,
-                        mb: 1,
-                        '&:hover': { bgcolor: '#f8fafc' },
-                      }}
-                    >
-                      <Avatar sx={{ bgcolor: '#eaf1fb', color: '#03288C' }}>
-                        {order.customer[0]}
-                      </Avatar>
-                      <Box sx={{ flex: 1 }}>
-                        <Typography variant="subtitle2" fontWeight={700}>{order.service}</Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {order.customer} · {order.date}
-                        </Typography>
-                      </Box>
-                      <Chip
-                        label={order.status}
-                        size="small"
+                  orders.map((order, index) => (
+                    <motion.div key={order.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.1 }}>
+                      <Box
                         sx={{
-                          bgcolor: `${statusColors[order.status]}15`,
-                          color: statusColors[order.status],
-                          fontWeight: 700,
-                          textTransform: 'capitalize',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 2,
+                          p: 2,
+                          borderRadius: 2,
+                          mb: 1,
+                          '&:hover': { bgcolor: '#f8fafc' },
                         }}
-                      />
-                      <Typography variant="subtitle2" fontWeight={700}>
-                        ₹{order.amount}
-                      </Typography>
-                    </Box>
-                  </motion.div>
-                ))
+                      >
+                        <Avatar sx={{ bgcolor: '#eaf1fb', color: '#03288C' }}>{order.customer[0]}</Avatar>
+                        <Box sx={{ flex: 1 }}>
+                          <Typography variant="subtitle2" fontWeight={700}>{order.service}</Typography>
+                          <Typography variant="caption" color="text.secondary">{order.customer} · {order.date}</Typography>
+                        </Box>
+                        <Chip
+                          label={order.status}
+                          size="small"
+                          sx={{
+                            bgcolor: `${statusColors[order.status]}15`,
+                            color: statusColors[order.status],
+                            fontWeight: 700,
+                            textTransform: 'capitalize',
+                          }}
+                        />
+                        <Typography variant="subtitle2" fontWeight={700}>₹{order.amount}</Typography>
+                      </Box>
+                    </motion.div>
+                  ))
                 )}
               </Box>
             )}
 
+            {/* ======= TAB 1: My Services ======= */}
             {tab === 1 && (
               <Box>
-                <Typography variant="body1" color="text.secondary">
-                  Manage your service categories, pricing, availability,
-                  and work areas from here.
-                </Typography>
+                {/* Header with Add button */}
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                  <Typography variant="h6" fontWeight={700}>
+                    Your Services ({services.length})
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    startIcon={<Add />}
+                    onClick={openAddDialog}
+                    sx={{
+                      background: 'linear-gradient(135deg, #03288C 0%, #1a56c4 100%)',
+                      borderRadius: 2,
+                      px: 3,
+                    }}
+                  >
+                    Add New Service
+                  </Button>
+                </Box>
+
+                {loadingServices ? (
+                  <Box sx={{ textAlign: 'center', py: 4 }}>
+                    <CircularProgress size={32} sx={{ color: '#03288C' }} />
+                  </Box>
+                ) : services.length === 0 ? (
+                  <Box sx={{ textAlign: 'center', py: 6 }}>
+                    <Build sx={{ fontSize: 56, color: '#c4c4c4', mb: 2 }} />
+                    <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
+                      No services yet
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                      Start by adding your first service so customers can find and book you.
+                    </Typography>
+                    <Button variant="contained" startIcon={<Add />} onClick={openAddDialog}>
+                      Add Your First Service
+                    </Button>
+                  </Box>
+                ) : (
+                  <AnimatePresence>
+                    {services.map((svc, index) => (
+                      <motion.div
+                        key={svc.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, x: -50 }}
+                        transition={{ delay: index * 0.05 }}
+                      >
+                        <Card
+                          sx={{
+                            mb: 2,
+                            borderRadius: 3,
+                            border: '1px solid rgba(15,43,102,0.06)',
+                            '&:hover': { boxShadow: '0 4px 20px rgba(15,43,102,0.1)', transform: 'none' },
+                          }}
+                        >
+                          <CardContent sx={{ p: 2.5 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                              {/* Service image / icon */}
+                              <Avatar
+                                src={svc.image}
+                                sx={{
+                                  width: 64,
+                                  height: 64,
+                                  borderRadius: 2,
+                                  bgcolor: '#eaf1fb',
+                                  color: '#03288C',
+                                  fontSize: 28,
+                                }}
+                              >
+                                <Build />
+                              </Avatar>
+
+                              {/* Service details */}
+                              <Box sx={{ flex: 1, minWidth: 0 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                                  <Typography variant="subtitle1" fontWeight={700} noWrap>
+                                    {svc.name}
+                                  </Typography>
+                                  <Chip
+                                    label={svc.active ? 'Active' : 'Inactive'}
+                                    size="small"
+                                    sx={{
+                                      bgcolor: svc.active ? '#22c55e15' : '#ef444415',
+                                      color: svc.active ? '#22c55e' : '#ef4444',
+                                      fontWeight: 700,
+                                      fontSize: '0.7rem',
+                                    }}
+                                  />
+                                </Box>
+
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 0.5 }}>
+                                  <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                    <Category sx={{ fontSize: 16 }} />
+                                    {svc.category_name || `Category #${svc.category_id}`}
+                                  </Typography>
+                                  {svc.duration && (
+                                    <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                      <AccessTime sx={{ fontSize: 16 }} />
+                                      {svc.duration}
+                                    </Typography>
+                                  )}
+                                  {svc.warranty && (
+                                    <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                      <Shield sx={{ fontSize: 16 }} />
+                                      {svc.warranty}
+                                    </Typography>
+                                  )}
+                                  {svc.rating > 0 && (
+                                    <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                      <Star sx={{ fontSize: 16, color: '#f59e0b' }} />
+                                      {svc.rating} ({svc.reviews})
+                                    </Typography>
+                                  )}
+                                </Box>
+
+                                {svc.description && (
+                                  <Typography variant="caption" color="text.secondary" sx={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                    {svc.description}
+                                  </Typography>
+                                )}
+                              </Box>
+
+                              {/* Price & actions */}
+                              <Box sx={{ textAlign: 'right', flexShrink: 0 }}>
+                                <Typography variant="h6" fontWeight={800} color="primary" sx={{ mb: 1 }}>
+                                  ₹{svc.price}
+                                </Typography>
+                                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                                  <Tooltip title="Edit">
+                                    <IconButton size="small" onClick={() => openEditDialog(svc)} sx={{ color: '#03288C' }}>
+                                      <Edit fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                                  <Tooltip title="Delete">
+                                    <IconButton size="small" onClick={() => openDeleteDialog(svc)} sx={{ color: '#ef4444' }}>
+                                      <Delete fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                                </Box>
+                              </Box>
+                            </Box>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                )}
               </Box>
             )}
           </CardContent>
         </Card>
       </Container>
+
+      {/* ======= Add / Edit Service Dialog ======= */}
+      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
+        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 700 }}>
+          {editingService ? 'Edit Service' : 'Add New Service'}
+          <IconButton size="small" onClick={() => setDialogOpen(false)}><Close /></IconButton>
+        </DialogTitle>
+        <DialogContent dividers sx={{ pt: 2.5 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+            <TextField
+              label="Service Name"
+              value={formData.name}
+              onChange={(e) => handleFormChange('name', e.target.value)}
+              fullWidth
+              required
+              placeholder="e.g. AC Repair & Service"
+            />
+
+            <TextField
+              label="Category"
+              value={formData.category_id}
+              onChange={(e) => handleFormChange('category_id', e.target.value)}
+              select
+              fullWidth
+              required
+            >
+              {categories.map((cat) => (
+                <MenuItem key={cat.id} value={cat.id}>
+                  {cat.name}
+                </MenuItem>
+              ))}
+            </TextField>
+
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                label="Price (₹)"
+                value={formData.price}
+                onChange={(e) => handleFormChange('price', e.target.value)}
+                type="number"
+                fullWidth
+                required
+                InputProps={{ startAdornment: <InputAdornment position="start">₹</InputAdornment> }}
+              />
+              <TextField
+                label="Duration"
+                value={formData.duration}
+                onChange={(e) => handleFormChange('duration', e.target.value)}
+                fullWidth
+                placeholder="e.g. 60 mins"
+              />
+            </Box>
+
+            <TextField
+              label="Description"
+              value={formData.description}
+              onChange={(e) => handleFormChange('description', e.target.value)}
+              fullWidth
+              multiline
+              rows={3}
+              placeholder="Describe what this service includes..."
+            />
+
+            <TextField
+              label="Warranty"
+              value={formData.warranty}
+              onChange={(e) => handleFormChange('warranty', e.target.value)}
+              fullWidth
+              placeholder="e.g. 30-day warranty"
+            />
+
+            <TextField
+              label="Image URL"
+              value={formData.image}
+              onChange={(e) => handleFormChange('image', e.target.value)}
+              fullWidth
+              placeholder="https://example.com/image.jpg"
+            />
+
+            {/* Includes list */}
+            <Box>
+              <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>
+                What's Included
+              </Typography>
+              {formData.includes.map((item, idx) => (
+                <Box key={idx} sx={{ display: 'flex', gap: 1, mb: 1 }}>
+                  <TextField
+                    value={item}
+                    onChange={(e) => handleIncludesChange(idx, e.target.value)}
+                    fullWidth
+                    size="small"
+                    placeholder={`Item ${idx + 1}`}
+                  />
+                  {formData.includes.length > 1 && (
+                    <IconButton size="small" onClick={() => removeIncludesItem(idx)} sx={{ color: '#ef4444' }}>
+                      <Close fontSize="small" />
+                    </IconButton>
+                  )}
+                </Box>
+              ))}
+              <Button size="small" startIcon={<Add />} onClick={addIncludesItem} sx={{ mt: 0.5 }}>
+                Add Item
+              </Button>
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2.5 }}>
+          <Button onClick={() => setDialogOpen(false)} sx={{ color: '#5a6a80' }}>Cancel</Button>
+          <Button
+            variant="contained"
+            onClick={handleSave}
+            disabled={saving}
+            sx={{ background: 'linear-gradient(135deg, #03288C 0%, #1a56c4 100%)', px: 4 }}
+          >
+            {saving ? <CircularProgress size={20} sx={{ color: '#fff' }} /> : editingService ? 'Update Service' : 'Create Service'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ======= Delete Confirmation Dialog ======= */}
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
+        <DialogTitle sx={{ fontWeight: 700 }}>Delete Service?</DialogTitle>
+        <DialogContent>
+          <Typography variant="body1">
+            Are you sure you want to delete <strong>{deletingService?.name}</strong>? This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setDeleteDialogOpen(false)} sx={{ color: '#5a6a80' }}>Cancel</Button>
+          <Button
+            variant="contained"
+            onClick={handleDelete}
+            disabled={deleting}
+            sx={{ bgcolor: '#ef4444', '&:hover': { bgcolor: '#dc2626' } }}
+          >
+            {deleting ? <CircularProgress size={20} sx={{ color: '#fff' }} /> : 'Delete'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ======= Snackbar ======= */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar((p) => ({ ...p, open: false }))}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          severity={snackbar.severity}
+          onClose={() => setSnackbar((p) => ({ ...p, open: false }))}
+          sx={{ borderRadius: 2 }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

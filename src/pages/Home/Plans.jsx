@@ -69,6 +69,7 @@ const Plans = () => {
                     : '1px solid rgba(15,43,102,0.1)',
                   overflow: 'visible',
                   height: '100%',
+                  minHeight: 500,
                   '&:hover': {
                     boxShadow: plan.recommended
                       ? '0 12px 48px rgba(15,43,102,0.2)'

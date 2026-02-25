@@ -202,9 +202,9 @@ const Signup = () => {
               <Box sx={{ textAlign: 'center', mb: 4 }}>
                 <Box
                   component="img"
-                  src="/logo.png"
+                  src="/logo-header.png"
                   alt="G-Future"
-                  sx={{ height: 72, width: 'auto', mx: 'auto', mb: 2, display: 'block' }}
+                  sx={{ height: 44, width: 'auto', mx: 'auto', mb: 2, display: 'block' }}
                 />
                 <Typography variant="h4" fontWeight={800}>
                   Join G-Future
@@ -221,6 +221,7 @@ const Signup = () => {
                   exclusive
                   onChange={(_, val) => val && setForm({ ...form, role: val })}
                   sx={{
+                    gap: 1.5,
                     '& .MuiToggleButton-root': {
                       borderRadius: '24px !important',
                       px: 3,
@@ -345,11 +346,13 @@ const Signup = () => {
                           minWidth: 110,
                           height: 48,
                           bgcolor: '#03288C',
+                          color: '#fff',
                           borderRadius: '8px',
                           fontWeight: 600,
                           fontSize: '0.8rem',
                           whiteSpace: 'nowrap',
-                          '&:hover': { bgcolor: '#021A66' },
+                          '&:hover': { bgcolor: '#021A66', color: '#fff' },
+                          '&.Mui-disabled': { color: '#fff' },
                         }}
                       >
                         {otpSending ? <CircularProgress size={20} color="inherit" /> : 'Send OTP'}
@@ -435,9 +438,11 @@ const Signup = () => {
                               disabled={otpVerifying || otpValues.join('').length !== OTP_LENGTH}
                               sx={{
                                 bgcolor: '#22c55e',
+                                color: '#fff',
                                 borderRadius: 2,
                                 fontWeight: 600,
-                                '&:hover': { bgcolor: '#16a34a' },
+                                '&:hover': { bgcolor: '#16a34a', color: '#fff' },
+                                '&.Mui-disabled': { color: '#fff' },
                               }}
                             >
                               {otpVerifying ? 'Verifying...' : 'Verify OTP'}
@@ -504,6 +509,7 @@ const Signup = () => {
                   disabled={loading || !otpVerified}
                   sx={{
                     bgcolor: '#03288C',
+                    color: '#fff',
                     borderRadius: '6px',
                     py: 1.5,
                     fontSize: '1rem',
@@ -511,9 +517,10 @@ const Signup = () => {
                     width: '85%',
                     mx: 'auto',
                     display: 'block',
-                    '&:hover': { bgcolor: '#021A66' },
+                    '&:hover': { bgcolor: '#021A66', color: '#fff' },
                     '&.Mui-disabled': {
                       bgcolor: otpVerified ? undefined : '#ccc',
+                      color: '#fff',
                     },
                   }}
                 >

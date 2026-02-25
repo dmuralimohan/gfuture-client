@@ -17,6 +17,16 @@ const About = lazy(() => import('./pages/About/About'));
 const Orders = lazy(() => import('./pages/Orders/Orders'));
 const Checkout = lazy(() => import('./pages/Checkout/Checkout'));
 
+// Admin pages
+const AdminLayout = lazy(() => import('./pages/Admin/AdminLayout'));
+const AdminDashboard = lazy(() => import('./pages/Admin/AdminDashboard'));
+const AdminUsers = lazy(() => import('./pages/Admin/AdminUsers'));
+const AdminServices = lazy(() => import('./pages/Admin/AdminServices'));
+const AdminOrders = lazy(() => import('./pages/Admin/AdminOrders'));
+const AdminCategories = lazy(() => import('./pages/Admin/AdminCategories'));
+const AdminAnalytics = lazy(() => import('./pages/Admin/AdminAnalytics'));
+const AdminPayments = lazy(() => import('./pages/Admin/AdminPayments'));
+
 const Loading = () => (
   <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
     <CircularProgress sx={{ color: '#03288C' }} />
@@ -39,6 +49,18 @@ const AppRoutes = () => (
       <Route path="/how-it-works" element={<HowItWorks />} />
       <Route path="/about" element={<About />} />
       <Route path="/orders" element={<Orders />} />
+
+      {/* Admin Panel */}
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<AdminDashboard />} />
+        <Route path="customers" element={<AdminUsers roleFilter="customer" />} />
+        <Route path="providers" element={<AdminUsers roleFilter="provider" />} />
+        <Route path="services" element={<AdminServices />} />
+        <Route path="orders" element={<AdminOrders />} />
+        <Route path="categories" element={<AdminCategories />} />
+        <Route path="analytics" element={<AdminAnalytics />} />
+        <Route path="payments" element={<AdminPayments />} />
+      </Route>
     </Routes>
   </Suspense>
 );

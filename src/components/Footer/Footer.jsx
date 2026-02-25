@@ -40,7 +40,7 @@ const Footer = () => {
                   component="img"
                   src="/logo.png"
                   alt="G-Future"
-                  sx={{ height: 96, width: 'auto' }}
+                  sx={{ height: 56, width: 'auto' }}
                 />
               </Box>
               <Typography

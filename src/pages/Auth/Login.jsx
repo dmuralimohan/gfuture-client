@@ -64,9 +64,9 @@ const Login = () => {
               <Box sx={{ textAlign: 'center', mb: 4 }}>
                 <Box
                   component="img"
-                  src="/logo.png"
+                  src="/logo-header.png"
                   alt="G-Future"
-                  sx={{ height: 72, width: 'auto', mx: 'auto', mb: 2, display: 'block' }}
+                  sx={{ height: 44, width: 'auto', mx: 'auto', mb: 2, display: 'block' }}
                 />
                 <Typography variant="h4" fontWeight={800}>
                   Welcome Back
