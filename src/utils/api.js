@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// Empty base URL — requests go to same origin (Vercel), then vercel.json rewrites proxy to EC2
+// Empty base URL — requests go to same origin (EC2 serves both client & API)
 const API_BASE_URL = '';
 
 const api = axios.create({
