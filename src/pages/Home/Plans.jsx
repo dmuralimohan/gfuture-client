@@ -75,7 +75,14 @@ const Plans = () => {
         <Box
           sx={ {
             display: 'grid',
-            gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: plans.length === 1 ? '1fr' : 'repeat(2, 1fr)',
+              md: plans.length <= 3
+                ? `repeat(${plans.length}, minmax(0, 320px))`
+                : `repeat(4, 1fr)`,
+            },
+            justifyContent: 'center',
             gap: 3,
             alignItems: 'stretch',
           } }
