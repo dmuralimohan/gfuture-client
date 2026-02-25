@@ -53,6 +53,12 @@ const Checkout = () => {
   const [transactionRef, setTransactionRef] = useState('');
   const timerRef = useRef(null);
 
+  // Coupon state
+  const [couponCode, setCouponCode] = useState('');
+  const [couponApplied, setCouponApplied] = useState(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState('');
+
   const [address, setAddress] = useState({
     line1: '',
     line2: '',
