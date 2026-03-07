@@ -32,6 +32,8 @@ import {
   Payment,
   CardMembership,
   LocalOffer,
+  TuneRounded,
+  ViewCarousel,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 
@@ -48,6 +50,8 @@ const menuItems = [
   { label: 'Payments', path: '/admin/payments', icon: <Payment /> },
   { label: 'Plans', path: '/admin/plans', icon: <CardMembership /> },
   { label: 'Offers', path: '/admin/offers', icon: <LocalOffer /> },
+  { label: 'Promo Cards', path: '/admin/promo-cards', icon: <ViewCarousel /> },
+  { label: 'Settings', path: '/admin/settings', icon: <TuneRounded /> },
 ];
 
 const AdminLayout = () => {

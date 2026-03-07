@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useCallback, useMemo } from 'react';
+import { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
+import api from '../utils/api';
 
 const CartContext = createContext(null);
 
@@ -13,6 +14,29 @@ export const CartProvider = ({ children }) => {
     const saved = localStorage.getItem('cart');
     return saved ? JSON.parse(saved) : [];
   });
+  const [feeSettings, setFeeSettings] = useState({
+    platform_fee_rate: 1.02,
+    extra_fee_label: '',
+    extra_fee_amount: 0,
+  });
+
+  // Fetch platform settings
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const { data } = await api.get('/api/settings/public');
+        const s = data.settings || {};
+        setFeeSettings({
+          platform_fee_rate: s.platform_fee_rate ? Number(s.platform_fee_rate.value) : 1.02,
+          extra_fee_label: s.extra_fee_label?.value || '',
+          extra_fee_amount: s.extra_fee_amount ? Number(s.extra_fee_amount.value) : 0,
+        });
+      } catch {
+        // Use defaults silently
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const saveToStorage = (newItems) => {
     localStorage.setItem('cart', JSON.stringify(newItems));
@@ -68,13 +92,17 @@ export const CartProvider = ({ children }) => {
     [items]
   );
 
-  const platformFee = useMemo(() => Math.round(subtotal * 0.0102 * 100) / 100, [subtotal]);
+  const platformFeeRate = feeSettings.platform_fee_rate;
+  const platformFee = useMemo(() => Math.round(subtotal * (platformFeeRate / 100) * 100) / 100, [subtotal, platformFeeRate]);
 
-  const total = useMemo(() => subtotal + platformFee, [subtotal, platformFee]);
+  const extraFeeLabel = feeSettings.extra_fee_label;
+  const extraFeeAmount = feeSettings.extra_fee_amount;
+
+  const total = useMemo(() => subtotal + platformFee + extraFeeAmount, [subtotal, platformFee, extraFeeAmount]);
 
   return (
     <CartContext.Provider
-      value={{
+      value={ {
         items,
         addItem,
         removeItem,
@@ -83,10 +111,14 @@ export const CartProvider = ({ children }) => {
         totalItems,
         subtotal,
         platformFee,
+        platformFeeRate,
+        extraFeeLabel,
+        extraFeeAmount,
         total,
-      }}
+        feeSettings,
+      } }
     >
-      {children}
+      { children }
     </CartContext.Provider>
   );
 };

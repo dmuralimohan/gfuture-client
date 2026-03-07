@@ -48,7 +48,7 @@ const Categories = () => {
   }, []);
 
   return (
-    <Box sx={ { py: 8, background: 'transparent' } }>
+    <Box sx={ { py: { xs: 4, md: 8 }, background: 'transparent' } }>
       <Container maxWidth="lg">
         <motion.div
           initial={ { opacity: 0, y: 20 } }

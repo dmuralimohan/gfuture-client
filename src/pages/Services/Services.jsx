@@ -230,15 +230,15 @@ const Services = () => {
 
         {/* Service Grid */ }
         { !loading && (
-          <Grid container spacing={ 3 }>
+          <Grid container spacing={ { xs: 2, md: 3 } }>
             <AnimatePresence>
               { services.map((service, index) => (
                 <Grid size={ { xs: 12, sm: 6, md: 4 } } key={ service.id }>
                   <motion.div
-                    initial={ { opacity: 0, y: 30 } }
+                    initial={ { opacity: 0, y: 20 } }
                     animate={ { opacity: 1, y: 0 } }
-                    exit={ { opacity: 0, y: -20 } }
-                    transition={ { duration: 0.4, delay: index * 0.05 } }
+                    exit={ { opacity: 0, y: -10 } }
+                    transition={ { duration: 0.3, delay: Math.min(index * 0.03, 0.3) } }
                     layout
                   >
                     <Card
@@ -266,6 +266,7 @@ const Services = () => {
                           height="200"
                           image={ service.image }
                           alt={ service.name }
+                          loading="lazy"
                           sx={ { objectFit: 'cover' } }
                         />
                         <Chip

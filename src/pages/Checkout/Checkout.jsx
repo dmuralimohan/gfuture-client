@@ -27,6 +27,7 @@ import {
   ContentCopy,
   Timer,
   LocalOffer,
+  ReceiptLong,
 } from '@mui/icons-material';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
@@ -36,7 +37,7 @@ const steps = ['Address', 'Schedule', 'Payment', 'Pay via UPI'];
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { items, subtotal, platformFee, total, clearCart } = useCart();
+  const { items, subtotal, platformFee, platformFeeRate, extraFeeLabel, extraFeeAmount, total, clearCart } = useCart();
   const { isAuthenticated, user } = useAuth();
   const [activeStep, setActiveStep] = useState(0);
   const [orderPlaced, setOrderPlaced] = useState(false);
@@ -67,6 +68,38 @@ const Checkout = () => {
     pincode: '',
   });
   const [schedule, setSchedule] = useState({ date: '', time: '' });
+  const [addressErrors, setAddressErrors] = useState({});
+  const [scheduleErrors, setScheduleErrors] = useState({});
+
+  // Validation helpers
+  const validateAddress = () => {
+    const errs = {};
+    if (!address.line1.trim()) errs.line1 = 'Address Line 1 is required';
+    if (!address.city.trim()) errs.city = 'City is required';
+    if (!address.state.trim()) errs.state = 'State is required';
+    if (!address.pincode.trim()) errs.pincode = 'PIN Code is required';
+    else if (!/^\d{6}$/.test(address.pincode.trim())) errs.pincode = 'Enter a valid 6-digit PIN code';
+    setAddressErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const validateSchedule = () => {
+    const errs = {};
+    if (!schedule.date) errs.date = 'Date is required';
+    if (!schedule.time) errs.time = 'Time is required';
+    setScheduleErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const handleNext = () => {
+    if (activeStep === 0) {
+      if (!validateAddress()) return;
+    }
+    if (activeStep === 1) {
+      if (!validateSchedule()) return;
+    }
+    setActiveStep(activeStep + 1);
+  };
 
   // Payment countdown timer
   useEffect(() => {
@@ -134,8 +167,9 @@ const Checkout = () => {
   // Adjusted totals with coupon
   const discountAmount = couponApplied?.discount_amount || 0;
   const discountedSubtotal = subtotal - discountAmount;
-  const adjustedPlatformFee = Math.round(discountedSubtotal * 0.0102 * 100) / 100;
-  const adjustedTotal = discountedSubtotal + adjustedPlatformFee;
+  const adjustedPlatformFee = Math.round(discountedSubtotal * (platformFeeRate / 100) * 100) / 100;
+  const adjustedExtraFee = extraFeeAmount || 0;
+  const adjustedTotal = discountedSubtotal + adjustedPlatformFee + adjustedExtraFee;
 
   // Step 3: Place order + generate QR
   const handleProceedToPayment = async () => {
@@ -241,7 +275,7 @@ const Checkout = () => {
             Checkout
           </Typography>
 
-          <Stepper activeStep={ activeStep } sx={ { mb: 4 } } alternativeLabel>
+          <Stepper activeStep={ activeStep } sx={ { mb: { xs: 2, md: 4 } } } alternativeLabel>
             { steps.map((label) => (
               <Step key={ label }>
                 <StepLabel>{ label }</StepLabel>
@@ -255,27 +289,31 @@ const Checkout = () => {
               <CardContent sx={ { p: { xs: 3, md: 4 } } }>
                 { activeStep === 0 && (
                   <Box>
-                    <Typography variant="h6" fontWeight={ 700 } sx={ { mb: 3 } }>Service Address</Typography>
+                    <Typography variant="h6" fontWeight={ 700 } sx={ { mb: 3 } }>Service Address <Typography component="span" variant="caption" color="error">*</Typography></Typography>
                     <Grid container spacing={ 2 }>
                       <Grid size={ { xs: 12 } }>
-                        <TextField fullWidth label="Address Line 1" value={ address.line1 }
-                          onChange={ (e) => setAddress({ ...address, line1: e.target.value }) } />
+                        <TextField fullWidth label="Address Line 1" value={ address.line1 } required
+                          error={ !!addressErrors.line1 } helperText={ addressErrors.line1 }
+                          onChange={ (e) => { setAddress({ ...address, line1: e.target.value }); setAddressErrors({ ...addressErrors, line1: '' }); } } />
                       </Grid>
                       <Grid size={ { xs: 12 } }>
                         <TextField fullWidth label="Address Line 2 (Optional)" value={ address.line2 }
                           onChange={ (e) => setAddress({ ...address, line2: e.target.value }) } />
                       </Grid>
                       <Grid size={ { xs: 12, sm: 4 } }>
-                        <TextField fullWidth label="City" value={ address.city }
-                          onChange={ (e) => setAddress({ ...address, city: e.target.value }) } />
+                        <TextField fullWidth label="City" value={ address.city } required
+                          error={ !!addressErrors.city } helperText={ addressErrors.city }
+                          onChange={ (e) => { setAddress({ ...address, city: e.target.value }); setAddressErrors({ ...addressErrors, city: '' }); } } />
                       </Grid>
                       <Grid size={ { xs: 12, sm: 4 } }>
-                        <TextField fullWidth label="State" value={ address.state }
-                          onChange={ (e) => setAddress({ ...address, state: e.target.value }) } />
+                        <TextField fullWidth label="State" value={ address.state } required
+                          error={ !!addressErrors.state } helperText={ addressErrors.state }
+                          onChange={ (e) => { setAddress({ ...address, state: e.target.value }); setAddressErrors({ ...addressErrors, state: '' }); } } />
                       </Grid>
                       <Grid size={ { xs: 12, sm: 4 } }>
-                        <TextField fullWidth label="PIN Code" value={ address.pincode }
-                          onChange={ (e) => setAddress({ ...address, pincode: e.target.value }) } />
+                        <TextField fullWidth label="PIN Code" value={ address.pincode } required
+                          error={ !!addressErrors.pincode } helperText={ addressErrors.pincode }
+                          onChange={ (e) => { setAddress({ ...address, pincode: e.target.value }); setAddressErrors({ ...addressErrors, pincode: '' }); } } />
                       </Grid>
                     </Grid>
                   </Box>
@@ -283,16 +321,19 @@ const Checkout = () => {
 
                 { activeStep === 1 && (
                   <Box>
-                    <Typography variant="h6" fontWeight={ 700 } sx={ { mb: 3 } }>Schedule Service</Typography>
+                    <Typography variant="h6" fontWeight={ 700 } sx={ { mb: 3 } }>Schedule Service <Typography component="span" variant="caption" color="error">*</Typography></Typography>
                     <Grid container spacing={ 2 }>
                       <Grid size={ { xs: 12, sm: 6 } }>
-                        <TextField fullWidth type="date" label="Preferred Date" value={ schedule.date }
-                          onChange={ (e) => setSchedule({ ...schedule, date: e.target.value }) }
-                          InputLabelProps={ { shrink: true } } />
+                        <TextField fullWidth type="date" label="Preferred Date" value={ schedule.date } required
+                          error={ !!scheduleErrors.date } helperText={ scheduleErrors.date }
+                          onChange={ (e) => { setSchedule({ ...schedule, date: e.target.value }); setScheduleErrors({ ...scheduleErrors, date: '' }); } }
+                          InputLabelProps={ { shrink: true } }
+                          inputProps={ { min: new Date().toISOString().split('T')[0] } } />
                       </Grid>
                       <Grid size={ { xs: 12, sm: 6 } }>
-                        <TextField fullWidth type="time" label="Preferred Time" value={ schedule.time }
-                          onChange={ (e) => setSchedule({ ...schedule, time: e.target.value }) }
+                        <TextField fullWidth type="time" label="Preferred Time" value={ schedule.time } required
+                          error={ !!scheduleErrors.time } helperText={ scheduleErrors.time }
+                          onChange={ (e) => { setSchedule({ ...schedule, time: e.target.value }); setScheduleErrors({ ...scheduleErrors, time: '' }); } }
                           InputLabelProps={ { shrink: true } } />
                       </Grid>
                     </Grid>
@@ -301,17 +342,31 @@ const Checkout = () => {
 
                 { activeStep === 2 && (
                   <Box>
-                    <Typography variant="h6" fontWeight={ 700 } sx={ { mb: 3 } }>
-                      <Payment sx={ { mr: 1, verticalAlign: 'middle' } } />
+                    <Typography variant="h6" fontWeight={ 700 } sx={ { mb: 3, display: 'flex', alignItems: 'center' } }>
+                      <ReceiptLong sx={ { mr: 1, color: '#03288C' } } />
                       Order Summary
                     </Typography>
-                    { items.map((item) => (
-                      <Box key={ item.id } sx={ { display: 'flex', justifyContent: 'space-between', mb: 1 } }>
-                        <Typography variant="body2">{ item.name } × { item.quantity }</Typography>
-                        <Typography variant="body2" fontWeight={ 600 }>₹{ (item.price * item.quantity).toLocaleString() }</Typography>
-                      </Box>
-                    )) }
-                    <Divider sx={ { my: 2 } } />
+
+                    {/* Item list with clear details */ }
+                    <Box sx={ { bgcolor: '#f8fafc', borderRadius: 2, p: 2, mb: 2 } }>
+                      { items.map((item, idx) => (
+                        <Box key={ item.id }>
+                          <Box sx={ { display: 'flex', alignItems: 'center', gap: 1.5, py: 1 } }>
+                            <Box sx={ { width: 44, height: 44, borderRadius: 1.5, overflow: 'hidden', flexShrink: 0, bgcolor: '#eaf1fb' } }>
+                              { item.image && <Box component="img" src={ item.image } alt={ item.name } sx={ { width: '100%', height: '100%', objectFit: 'cover' } } /> }
+                            </Box>
+                            <Box sx={ { flex: 1, minWidth: 0 } }>
+                              <Typography variant="body2" fontWeight={ 600 } noWrap>{ item.name }</Typography>
+                              <Typography variant="caption" color="text.secondary">Qty: { item.quantity } × ₹{ item.price.toLocaleString() }</Typography>
+                            </Box>
+                            <Typography variant="body2" fontWeight={ 700 } sx={ { color: '#03288C' } }>
+                              ₹{ (item.price * item.quantity).toLocaleString() }
+                            </Typography>
+                          </Box>
+                          { idx < items.length - 1 && <Divider sx={ { my: 0.5 } } /> }
+                        </Box>
+                      )) }
+                    </Box>
 
                     {/* Coupon Code Input */ }
                     <Box sx={ { mb: 2 } }>
@@ -349,9 +404,18 @@ const Checkout = () => {
                             variant="contained"
                             onClick={ handleApplyCoupon }
                             disabled={ couponLoading || !couponCode.trim() }
-                            sx={ { bgcolor: '#03288C', borderRadius: 2, px: 3, minWidth: 80, '&:hover': { bgcolor: '#021A66' } } }
+                            sx={ {
+                              bgcolor: '#03288C',
+                              color: '#ffffff',
+                              borderRadius: 2,
+                              px: 3,
+                              minWidth: 80,
+                              fontWeight: 700,
+                              '&:hover': { bgcolor: '#021A66', color: '#ffffff' },
+                              '&.Mui-disabled': { bgcolor: '#03288C80', color: '#ffffffcc' },
+                            } }
                           >
-                            { couponLoading ? <CircularProgress size={ 20 } color="inherit" /> : 'Apply' }
+                            { couponLoading ? <CircularProgress size={ 20 } sx={ { color: '#fff' } } /> : 'Apply' }
                           </Button>
                         </Box>
                       ) }
@@ -369,9 +433,15 @@ const Checkout = () => {
                       </Box>
                     ) }
                     <Box sx={ { display: 'flex', justifyContent: 'space-between', mb: 1 } }>
-                      <Typography variant="body2" color="text.secondary">Platform Fee (1.02%)</Typography>
+                      <Typography variant="body2" color="text.secondary">Platform Fee ({ platformFeeRate }%)</Typography>
                       <Typography variant="body2" fontWeight={ 600 }>₹{ adjustedPlatformFee.toFixed(2) }</Typography>
                     </Box>
+                    { extraFeeLabel && adjustedExtraFee > 0 && (
+                      <Box sx={ { display: 'flex', justifyContent: 'space-between', mb: 1 } }>
+                        <Typography variant="body2" color="text.secondary">{ extraFeeLabel }</Typography>
+                        <Typography variant="body2" fontWeight={ 600 }>₹{ adjustedExtraFee.toFixed(2) }</Typography>
+                      </Box>
+                    ) }
                     <Divider sx={ { my: 2 } } />
                     <Box sx={ { display: 'flex', justifyContent: 'space-between' } }>
                       <Typography variant="h6" fontWeight={ 800 }>Total</Typography>
@@ -550,7 +620,7 @@ const Checkout = () => {
                 Back
               </Button>
               { activeStep < 2 ? (
-                <Button variant="contained" onClick={ () => setActiveStep(activeStep + 1) }
+                <Button variant="contained" onClick={ handleNext }
                   sx={ { bgcolor: '#03288C', borderRadius: '6px', px: 4, '&:hover': { bgcolor: '#021A66' } } }>
                   Next
                 </Button>

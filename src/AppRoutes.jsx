@@ -28,6 +28,8 @@ const AdminAnalytics = lazy(() => import('./pages/Admin/AdminAnalytics'));
 const AdminPayments = lazy(() => import('./pages/Admin/AdminPayments'));
 const AdminPlans = lazy(() => import('./pages/Admin/AdminPlans'));
 const AdminOffers = lazy(() => import('./pages/Admin/AdminOffers'));
+const AdminSettings = lazy(() => import('./pages/Admin/AdminSettings'));
+const AdminPromoCards = lazy(() => import('./pages/Admin/AdminPromoCards'));
 
 const Loading = () => (
   <Box sx={ { display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' } }>
@@ -64,6 +66,8 @@ const AppRoutes = () => (
         <Route path="payments" element={ <AdminPayments /> } />
         <Route path="plans" element={ <AdminPlans /> } />
         <Route path="offers" element={ <AdminOffers /> } />
+        <Route path="settings" element={ <AdminSettings /> } />
+        <Route path="promo-cards" element={ <AdminPromoCards /> } />
       </Route>
     </Routes>
   </Suspense>
