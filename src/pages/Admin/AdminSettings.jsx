@@ -109,7 +109,7 @@ const AdminSettings = () => {
                     startIcon={ <Save /> }
                     onClick={ handleSave }
                     disabled={ saving || loading }
-                    sx={ { bgcolor: '#03288C', borderRadius: 2, '&:hover': { bgcolor: '#021A66' } } }
+                    sx={ { color: '#ffffff', bgcolor: '#03288C', borderRadius: 2, '&:hover': { bgcolor: '#021A66' } } }
                 >
                     { saving ? 'Saving...' : 'Save Changes' }
                 </Button>
@@ -242,7 +242,7 @@ const AdminSettings = () => {
                             startIcon={ <Add /> }
                             onClick={ handleAddCustomFee }
                             disabled={ !newFeeLabel.trim() }
-                            sx={ { bgcolor: '#03288C', borderRadius: 2, '&:hover': { bgcolor: '#021A66' } } }
+                            sx={ { color: '#ffffff', bgcolor: '#03288C', borderRadius: 2, '&:hover': { bgcolor: '#021A66' } } }
                         >
                             Add Fee
                         </Button>
