@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -17,6 +17,7 @@ import {
   Alert,
   CircularProgress,
   Chip,
+  LinearProgress,
 } from '@mui/material';
 import {
   CheckCircle,
@@ -28,12 +29,16 @@ import {
   Timer,
   LocalOffer,
   ReceiptLong,
+  CreditCard,
+  Security,
+  Print,
+  ShoppingBag,
 } from '@mui/icons-material';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/api';
 
-const steps = ['Address', 'Schedule', 'Payment', 'Pay via UPI'];
+const steps = ['Address', 'Schedule', 'Payment', 'Pay Now'];
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -52,7 +57,10 @@ const Checkout = () => {
   const [paymentTimer, setPaymentTimer] = useState(600); // 10 minutes
   const [copied, setCopied] = useState(false);
   const [transactionRef, setTransactionRef] = useState('');
+  const [razorpayProcessing, setRazorpayProcessing] = useState(false);
+  const [verifiedPayment, setVerifiedPayment] = useState(null);
   const timerRef = useRef(null);
+  const pollRef = useRef(null);
 
   // Coupon state
   const [couponCode, setCouponCode] = useState('');
@@ -171,7 +179,7 @@ const Checkout = () => {
   const adjustedExtraFee = extraFeeAmount || 0;
   const adjustedTotal = discountedSubtotal + adjustedPlatformFee + adjustedExtraFee;
 
-  // Step 3: Place order + generate QR
+  // Step 3: Place order + initiate payment
   const handleProceedToPayment = async () => {
     setPlacing(true);
     setError('');
@@ -190,14 +198,22 @@ const Checkout = () => {
       const newOrderId = orderData.order.id;
       setOrderId(newOrderId);
 
-      // 2. Initiate payment & get QR
+      // 2. Initiate payment
       setPaymentLoading(true);
       const { data: payData } = await api.post('/api/payments/initiate', {
         orderId: newOrderId,
       });
       setPaymentData(payData.payment);
-      setPaymentTimer(600);
-      setActiveStep(3);
+
+      // 3. If Razorpay mode — open Razorpay checkout popup automatically
+      if (payData.payment.method === 'razorpay' && payData.payment.razorpayOrderId) {
+        setActiveStep(3);
+        openRazorpayCheckout(payData.payment);
+      } else {
+        // UPI QR fallback
+        setPaymentTimer(600);
+        setActiveStep(3);
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create order. Please try again.');
     } finally {
@@ -206,19 +222,124 @@ const Checkout = () => {
     }
   };
 
-  // Verify payment
+  // Open Razorpay Checkout popup (handles UPI QR, cards, net banking, wallets etc.)
+  const openRazorpayCheckout = useCallback((payment) => {
+    if (!window.Razorpay) {
+      setError('Payment gateway is loading. Please try again.');
+      return;
+    }
+
+    setRazorpayProcessing(true);
+    setError('');
+
+    const options = {
+      key: payment.razorpayKeyId,
+      amount: Math.round(payment.amount * 100),
+      currency: 'INR',
+      name: 'GFuture',
+      description: payment.breakdown?.items?.map(i => i.name).join(', ').substring(0, 250) || 'Order Payment',
+      order_id: payment.razorpayOrderId,
+      prefill: {
+        name: payment.customerName || user?.name || '',
+        email: payment.customerEmail || user?.email || '',
+        contact: payment.customerPhone || user?.phone || '',
+      },
+      notes: {
+        orderId: payment.orderId,
+        subtotal: `₹${payment.breakdown?.subtotal?.toFixed(2) || '0'}`,
+        platformFee: `₹${payment.breakdown?.platform_fee?.toFixed(2) || '0'}`,
+        total: `₹${payment.amount?.toFixed(2) || '0'}`,
+      },
+      theme: {
+        color: '#03288C',
+        backdrop_color: 'rgba(0,0,0,0.6)',
+      },
+      modal: {
+        ondismiss: () => {
+          setRazorpayProcessing(false);
+          startPaymentPolling(payment.id);
+        },
+        confirm_close: true,
+      },
+      handler: async (response) => {
+        setPaymentVerifying(true);
+        setRazorpayProcessing(false);
+        try {
+          const { data } = await api.post('/api/payments/verify', {
+            paymentId: payment.id,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+          });
+          clearCart();
+          stopPolling();
+          setVerifiedPayment(data.payment);
+          setOrderPlaced(true);
+          clearInterval(timerRef.current);
+        } catch (err) {
+          setError(err.response?.data?.message || 'Payment verification failed. Please contact support.');
+        } finally {
+          setPaymentVerifying(false);
+        }
+      },
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.on('payment.failed', (response) => {
+      setRazorpayProcessing(false);
+      setError(`Payment failed: ${response.error.description || 'Please try again'}`);
+    });
+    rzp.open();
+  }, [user, clearCart]);
+
+  // Poll server for payment status (backs up webhook/callback)
+  const startPaymentPolling = useCallback((paymentId) => {
+    if (pollRef.current) return; // already polling
+    pollRef.current = setInterval(async () => {
+      try {
+        const { data } = await api.get(`/api/payments/status/${paymentId}`);
+        if (data.payment.status === 'completed') {
+          clearCart();
+          setOrderPlaced(true);
+          stopPolling();
+          clearInterval(timerRef.current);
+        } else if (data.payment.status === 'failed') {
+          setError('Payment failed. Please try again.');
+          stopPolling();
+        }
+      } catch {
+        // ignore polling errors
+      }
+    }, 3000); // poll every 3 seconds
+  }, [clearCart]);
+
+  const stopPolling = useCallback(() => {
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+  }, []);
+
+  // Clean up polling on unmount
+  useEffect(() => {
+    return () => stopPolling();
+  }, [stopPolling]);
+
+  // Verify payment — for UPI QR fallback mode
   const handleVerifyPayment = async () => {
     if (!paymentData) return;
     setPaymentVerifying(true);
     setError('');
     try {
-      await api.post('/api/payments/verify', {
+      const { data } = await api.post('/api/payments/verify', {
         paymentId: paymentData.id,
         transactionRef: transactionRef || undefined,
       });
       clearCart();
+      setVerifiedPayment(data.payment);
       setOrderPlaced(true);
       clearInterval(timerRef.current);
+      stopPolling();
     } catch (err) {
       setError(err.response?.data?.message || 'Payment verification failed');
     } finally {
@@ -234,27 +355,112 @@ const Checkout = () => {
 
   // Success Screen
   if (orderPlaced) {
+    const txnId = verifiedPayment?.transaction_ref || verifiedPayment?.razorpay_payment_id || '';
+    const paidAt = verifiedPayment?.paid_at;
+    const method = verifiedPayment?.method || paymentData?.method || '';
+    const bd = paymentData?.breakdown;
+
     return (
-      <Box sx={ { py: 10, textAlign: 'center', minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' } }>
+      <Box sx={ { py: 6, minHeight: '60vh' } }>
         <Container maxWidth="sm">
           <motion.div initial={ { scale: 0 } } animate={ { scale: 1 } } transition={ { type: 'spring', stiffness: 200 } }>
-            <CheckCircle sx={ { fontSize: 100, color: '#22c55e', mb: 3 } } />
+            <Box sx={ { textAlign: 'center', mb: 3 } }>
+              <CheckCircle sx={ { fontSize: 80, color: '#22c55e', mb: 2 } } />
+              <Typography variant="h4" fontWeight={ 800 } sx={ { mb: 0.5 } }>Payment Confirmed!</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Your service has been booked and payment is verified.
+              </Typography>
+            </Box>
           </motion.div>
+
           <motion.div initial={ { opacity: 0, y: 20 } } animate={ { opacity: 1, y: 0 } } transition={ { delay: 0.3 } }>
-            <Typography variant="h3" fontWeight={ 800 } sx={ { mb: 1 } }>Payment Confirmed!</Typography>
-            <Typography variant="body1" color="text.secondary" sx={ { mb: 1 } }>
-              Your service has been booked and payment is verified.
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={ { mb: 4 } }>
-              Our provider will contact you at your scheduled time.
-            </Typography>
+            {/* Transaction Card */ }
+            <Card sx={ { borderRadius: 4, mb: 3, border: '2px solid #22c55e', overflow: 'visible' } }>
+              <Box sx={ { bgcolor: '#22c55e', color: '#fff', py: 1.5, px: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' } }>
+                <Typography variant="subtitle2" fontWeight={ 700 }>
+                  <CheckCircle sx={ { fontSize: 16, verticalAlign: 'middle', mr: 0.5 } } /> Payment Successful
+                </Typography>
+                <Typography variant="subtitle2" fontWeight={ 800 }>₹{ (bd?.total || paymentData?.amount || 0).toFixed(2) }</Typography>
+              </Box>
+              <CardContent sx={ { p: 3 } }>
+                {/* Order Items */ }
+                { bd?.items && bd.items.length > 0 && (
+                  <Box sx={ { mb: 2 } }>
+                    { bd.items.map((item, idx) => (
+                      <Box key={ idx } sx={ { display: 'flex', justifyContent: 'space-between', py: 0.5 } }>
+                        <Typography variant="body2" color="text.secondary">{ item.name } × { item.qty }</Typography>
+                        <Typography variant="body2" fontWeight={ 600 }>₹{ (item.price * item.qty).toFixed(2) }</Typography>
+                      </Box>
+                    )) }
+                    <Divider sx={ { my: 1.5 } } />
+                  </Box>
+                ) }
+
+                {/* Breakdown */ }
+                { bd && (
+                  <Box sx={ { mb: 2 } }>
+                    <Box sx={ { display: 'flex', justifyContent: 'space-between', mb: 0.5 } }>
+                      <Typography variant="body2" color="text.secondary">Subtotal</Typography>
+                      <Typography variant="body2">₹{ bd.subtotal?.toFixed(2) }</Typography>
+                    </Box>
+                    { bd.discount_amount > 0 && (
+                      <Box sx={ { display: 'flex', justifyContent: 'space-between', mb: 0.5 } }>
+                        <Typography variant="body2" color="#10b981">Discount { bd.coupon_code ? `(${bd.coupon_code})` : '' }</Typography>
+                        <Typography variant="body2" color="#10b981" fontWeight={ 600 }>−₹{ bd.discount_amount.toFixed(2) }</Typography>
+                      </Box>
+                    ) }
+                    <Box sx={ { display: 'flex', justifyContent: 'space-between', mb: 0.5 } }>
+                      <Typography variant="body2" color="text.secondary">Platform Fee</Typography>
+                      <Typography variant="body2">₹{ bd.platform_fee?.toFixed(2) }</Typography>
+                    </Box>
+                    <Divider sx={ { my: 1 } } />
+                    <Box sx={ { display: 'flex', justifyContent: 'space-between' } }>
+                      <Typography variant="subtitle2" fontWeight={ 800 }>Total Paid</Typography>
+                      <Typography variant="subtitle2" fontWeight={ 800 } color="#03288C">₹{ bd.total?.toFixed(2) }</Typography>
+                    </Box>
+                  </Box>
+                ) }
+
+                <Divider sx={ { my: 1.5 } } />
+
+                {/* Transaction Details */ }
+                <Box sx={ { bgcolor: '#f8fafc', borderRadius: 2, p: 2 } }>
+                  { orderId && (
+                    <Box sx={ { display: 'flex', justifyContent: 'space-between', mb: 0.8 } }>
+                      <Typography variant="caption" color="text.secondary">Order ID</Typography>
+                      <Typography variant="caption" fontWeight={ 700 } sx={ { fontFamily: 'monospace' } }>{ orderId.substring(0, 16) }...</Typography>
+                    </Box>
+                  ) }
+                  { txnId && (
+                    <Box sx={ { display: 'flex', justifyContent: 'space-between', mb: 0.8 } }>
+                      <Typography variant="caption" color="text.secondary">Transaction ID</Typography>
+                      <Typography variant="caption" fontWeight={ 700 } sx={ { fontFamily: 'monospace' } }>{ txnId.substring(0, 20) }</Typography>
+                    </Box>
+                  ) }
+                  { method && (
+                    <Box sx={ { display: 'flex', justifyContent: 'space-between', mb: 0.8 } }>
+                      <Typography variant="caption" color="text.secondary">Payment Method</Typography>
+                      <Chip label={ method.toUpperCase() } size="small" sx={ { fontSize: '0.65rem', height: 20, bgcolor: '#eaf1fb', color: '#03288C', fontWeight: 700 } } />
+                    </Box>
+                  ) }
+                  { paidAt && (
+                    <Box sx={ { display: 'flex', justifyContent: 'space-between' } }>
+                      <Typography variant="caption" color="text.secondary">Paid At</Typography>
+                      <Typography variant="caption" fontWeight={ 600 }>{ new Date(paidAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) }</Typography>
+                    </Box>
+                  ) }
+                </Box>
+              </CardContent>
+            </Card>
+
             <Box sx={ { display: 'flex', gap: 2, justifyContent: 'center' } }>
               <Button variant="contained" onClick={ () => navigate('/orders') }
-                sx={ { bgcolor: '#03288C', borderRadius: '6px', px: 4, '&:hover': { bgcolor: '#021A66' } } }>
+                startIcon={ <ShoppingBag /> }
+                sx={ { bgcolor: '#03288C', borderRadius: '10px', px: 4, fontWeight: 700, '&:hover': { bgcolor: '#021A66' } } }>
                 View Orders
               </Button>
               <Button variant="outlined" onClick={ () => navigate('/services') }
-                sx={ { borderRadius: '6px', px: 4, borderColor: '#03288C', color: '#03288C' } }>
+                sx={ { borderRadius: '10px', px: 4, fontWeight: 700, borderColor: '#03288C', color: '#03288C' } }>
                 Continue Browsing
               </Button>
             </Box>
@@ -448,8 +654,8 @@ const Checkout = () => {
                       <Typography variant="h6" fontWeight={ 800 } sx={ { color: '#03288C' } }>₹{ adjustedTotal.toFixed(2) }</Typography>
                     </Box>
 
-                    <Alert severity="info" sx={ { mt: 3, borderRadius: 2 } } icon={ <QrCode2 /> }>
-                      You'll pay via UPI QR code in the next step. Scan with any UPI app (Google Pay, PhonePe, Paytm, etc.)
+                    <Alert severity="info" sx={ { mt: 3, borderRadius: 2 } } icon={ <Payment /> }>
+                      Pay securely via Razorpay — UPI QR, Google Pay, PhonePe, Cards, Net Banking & more. Payment is verified automatically.
                     </Alert>
 
                     { error && (
@@ -461,7 +667,7 @@ const Checkout = () => {
             </Card>
           ) }
 
-          {/* Step 3: UPI QR Payment */ }
+          {/* Step 3: Payment */ }
           <AnimatePresence>
             { activeStep === 3 && paymentData && (
               <motion.div
@@ -471,138 +677,250 @@ const Checkout = () => {
               >
                 <Card sx={ { borderRadius: 4, mb: 3, border: '2px solid #03288C' } }>
                   <CardContent sx={ { p: { xs: 3, md: 4 } } }>
-                    {/* Timer Header */ }
-                    <Box sx={ { display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 } }>
-                      <Typography variant="h6" fontWeight={ 700 }>
-                        <QrCode2 sx={ { mr: 1, verticalAlign: 'middle', color: '#03288C' } } />
-                        Scan & Pay
-                      </Typography>
-                      <Chip
-                        icon={ <Timer sx={ { fontSize: 16 } } /> }
-                        label={ paymentTimer > 0 ? formatTime(paymentTimer) : 'Expired' }
-                        size="small"
-                        sx={ {
-                          bgcolor: paymentTimer > 60 ? '#eaf1fb' : paymentTimer > 0 ? '#fef3c7' : '#fee2e2',
-                          color: paymentTimer > 60 ? '#03288C' : paymentTimer > 0 ? '#d97706' : '#dc2626',
-                          fontWeight: 700,
-                          fontFamily: 'Poppins',
-                        } }
-                      />
-                    </Box>
 
-                    {/* QR Code */ }
-                    <Box sx={ { textAlign: 'center', mb: 3 } }>
-                      <Box
-                        sx={ {
-                          display: 'inline-block',
-                          p: 3,
-                          borderRadius: 4,
-                          bgcolor: '#fff',
-                          border: '2px solid #eaf1fb',
-                          boxShadow: '0 4px 20px rgba(15,43,102,0.08)',
-                        } }
-                      >
-                        { paymentData.qrCode ? (
-                          <Box
-                            component="img"
-                            src={ paymentData.qrCode }
-                            alt="UPI QR Code"
-                            sx={ { width: 260, height: 260, display: 'block' } }
-                          />
-                        ) : (
-                          <Box sx={ { width: 260, height: 260, display: 'flex', alignItems: 'center', justifyContent: 'center' } }>
-                            <CircularProgress />
+                    {/* ── Razorpay Mode ── */ }
+                    { paymentData.method === 'razorpay' ? (
+                      <Box>
+                        {/* Processing State */ }
+                        { (razorpayProcessing || paymentVerifying) && (
+                          <Box sx={ { textAlign: 'center', py: 4 } }>
+                            <motion.div
+                              animate={ { rotate: 360 } }
+                              transition={ { duration: 2, repeat: Infinity, ease: 'linear' } }
+                              style={ { display: 'inline-block', marginBottom: 24 } }
+                            >
+                              <Payment sx={ { fontSize: 60, color: '#03288C' } } />
+                            </motion.div>
+                            <Typography variant="h6" fontWeight={ 700 } sx={ { mb: 1 } }>
+                              { paymentVerifying ? 'Verifying Payment...' : 'Processing Payment...' }
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" sx={ { mb: 2 } }>
+                              { paymentVerifying
+                                ? 'Confirming your payment with the bank. This takes a moment.'
+                                : 'Complete the payment in the Razorpay window. Do not close this page.'
+                              }
+                            </Typography>
+                            <LinearProgress sx={ { borderRadius: 2, height: 6, bgcolor: '#eaf1fb', '& .MuiLinearProgress-bar': { bgcolor: '#03288C' } } } />
+                          </Box>
+                        ) }
+
+                        {/* Ready / Idle State */ }
+                        { !razorpayProcessing && !paymentVerifying && (
+                          <Box>
+                            <Typography variant="h6" fontWeight={ 700 } sx={ { mb: 2, display: 'flex', alignItems: 'center' } }>
+                              <ReceiptLong sx={ { mr: 1, color: '#03288C' } } />
+                              Payment Summary
+                            </Typography>
+
+                            {/* Bill Breakdown */ }
+                            { paymentData.breakdown && (
+                              <Box sx={ { bgcolor: '#f8fafc', borderRadius: 3, p: 2.5, mb: 3, border: '1px solid #e2e8f0' } }>
+                                { paymentData.breakdown.items?.map((item, idx) => (
+                                  <Box key={ idx } sx={ { display: 'flex', justifyContent: 'space-between', py: 0.5 } }>
+                                    <Typography variant="body2">{ item.name } × { item.qty }</Typography>
+                                    <Typography variant="body2" fontWeight={ 600 }>₹{ (item.price * item.qty).toFixed(2) }</Typography>
+                                  </Box>
+                                )) }
+                                <Divider sx={ { my: 1.5 } } />
+                                <Box sx={ { display: 'flex', justifyContent: 'space-between', mb: 0.5 } }>
+                                  <Typography variant="body2" color="text.secondary">Subtotal</Typography>
+                                  <Typography variant="body2" fontWeight={ 600 }>₹{ paymentData.breakdown.subtotal?.toFixed(2) }</Typography>
+                                </Box>
+                                { paymentData.breakdown.discount_amount > 0 && (
+                                  <Box sx={ { display: 'flex', justifyContent: 'space-between', mb: 0.5 } }>
+                                    <Typography variant="body2" color="#10b981" fontWeight={ 600 }>
+                                      Coupon Discount { paymentData.breakdown.coupon_code ? `(${paymentData.breakdown.coupon_code})` : '' }
+                                    </Typography>
+                                    <Typography variant="body2" fontWeight={ 700 } color="#10b981">−₹{ paymentData.breakdown.discount_amount.toFixed(2) }</Typography>
+                                  </Box>
+                                ) }
+                                <Box sx={ { display: 'flex', justifyContent: 'space-between', mb: 0.5 } }>
+                                  <Typography variant="body2" color="text.secondary">Platform Fee</Typography>
+                                  <Typography variant="body2" fontWeight={ 600 }>₹{ paymentData.breakdown.platform_fee?.toFixed(2) }</Typography>
+                                </Box>
+                                <Divider sx={ { my: 1.5 } } />
+                                <Box sx={ { display: 'flex', justifyContent: 'space-between' } }>
+                                  <Typography variant="subtitle1" fontWeight={ 800 }>Total Payable</Typography>
+                                  <Typography variant="subtitle1" fontWeight={ 800 } sx={ { color: '#03288C' } }>₹{ paymentData.breakdown.total?.toFixed(2) }</Typography>
+                                </Box>
+                              </Box>
+                            ) }
+
+                            {/* Pay Button */ }
+                            <Button
+                              fullWidth
+                              variant="contained"
+                              size="large"
+                              onClick={ () => openRazorpayCheckout(paymentData) }
+                              startIcon={ <Payment /> }
+                              sx={ {
+                                bgcolor: '#03288C',
+                                borderRadius: '12px',
+                                py: 1.8,
+                                fontSize: '1.1rem',
+                                fontWeight: 700,
+                                mb: 2,
+                                '&:hover': { bgcolor: '#021A66' },
+                              } }
+                            >
+                              Pay ₹{ paymentData.amount?.toFixed(2) } Now
+                            </Button>
+
+                            <Box sx={ { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 } }>
+                              <Security sx={ { fontSize: 16, color: '#22c55e' } } />
+                              <Typography variant="caption" color="text.secondary">
+                                Secured by Razorpay | 256-bit SSL Encryption
+                              </Typography>
+                            </Box>
+                            <Typography variant="caption" color="text.secondary" sx={ { display: 'block', textAlign: 'center' } }>
+                              UPI QR Code · Google Pay · PhonePe · Cards · Net Banking · Wallets
+                            </Typography>
+
+                            { error && (
+                              <Alert severity="error" sx={ { mt: 2, borderRadius: 2 } }>{ error }</Alert>
+                            ) }
                           </Box>
                         ) }
                       </Box>
+                    ) : (
 
-                      <Typography variant="h5" fontWeight={ 800 } sx={ { mt: 2, color: '#03288C' } }>
-                        ₹{ paymentData.amount?.toFixed(2) }
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Scan with Google Pay, PhonePe, Paytm, or any UPI app
-                      </Typography>
-                    </Box>
+                      /* ── UPI QR Fallback Mode ── */
+                      <Box>
+                        {/* Timer Header */ }
+                        <Box sx={ { display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 } }>
+                          <Typography variant="h6" fontWeight={ 700 }>
+                            <QrCode2 sx={ { mr: 1, verticalAlign: 'middle', color: '#03288C' } } />
+                            Scan & Pay
+                          </Typography>
+                          <Chip
+                            icon={ <Timer sx={ { fontSize: 16 } } /> }
+                            label={ paymentTimer > 0 ? formatTime(paymentTimer) : 'Expired' }
+                            size="small"
+                            sx={ {
+                              bgcolor: paymentTimer > 60 ? '#eaf1fb' : paymentTimer > 0 ? '#fef3c7' : '#fee2e2',
+                              color: paymentTimer > 60 ? '#03288C' : paymentTimer > 0 ? '#d97706' : '#dc2626',
+                              fontWeight: 700,
+                              fontFamily: 'Poppins',
+                            } }
+                          />
+                        </Box>
 
-                    {/* UPI ID */ }
-                    <Box
-                      sx={ {
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 1,
-                        mb: 3,
-                        p: 1.5,
-                        borderRadius: 2,
-                        bgcolor: '#f8fafc',
-                        border: '1px solid #e2e8f0',
-                      } }
-                    >
-                      <AccountBalance sx={ { color: '#5a6a80', fontSize: 20 } } />
-                      <Typography variant="body2" fontWeight={ 600 } sx={ { fontFamily: 'Poppins' } }>
-                        UPI: { paymentData.merchantUPI }
-                      </Typography>
-                      <Button
-                        size="small"
-                        startIcon={ <ContentCopy sx={ { fontSize: 14 } } /> }
-                        onClick={ () => copyToClipboard(paymentData.merchantUPI) }
-                        sx={ { fontSize: '0.7rem', color: '#03288C', minWidth: 'auto' } }
-                      >
-                        { copied ? 'Copied!' : 'Copy' }
-                      </Button>
-                    </Box>
+                        {/* QR Code */ }
+                        <Box sx={ { textAlign: 'center', mb: 3 } }>
+                          <Box
+                            sx={ {
+                              display: 'inline-block',
+                              p: 3,
+                              borderRadius: 4,
+                              bgcolor: '#fff',
+                              border: '2px solid #eaf1fb',
+                              boxShadow: '0 4px 20px rgba(15,43,102,0.08)',
+                            } }
+                          >
+                            { paymentData.qrCode ? (
+                              <Box
+                                component="img"
+                                src={ paymentData.qrCode }
+                                alt="UPI QR Code"
+                                sx={ { width: 260, height: 260, display: 'block' } }
+                              />
+                            ) : (
+                              <Box sx={ { width: 260, height: 260, display: 'flex', alignItems: 'center', justifyContent: 'center' } }>
+                                <CircularProgress />
+                              </Box>
+                            ) }
+                          </Box>
 
-                    <Divider sx={ { my: 2 } } />
+                          <Typography variant="h5" fontWeight={ 800 } sx={ { mt: 2, color: '#03288C' } }>
+                            ₹{ paymentData.amount?.toFixed(2) }
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            Scan with Google Pay, PhonePe, Paytm, or any UPI app
+                          </Typography>
+                        </Box>
 
-                    {/* Transaction Reference */ }
-                    <Typography variant="subtitle2" fontWeight={ 700 } sx={ { mb: 1 } }>
-                      After paying, enter your UPI Transaction ID (optional)
-                    </Typography>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      placeholder="e.g. 123456789012 or UPI ref number"
-                      value={ transactionRef }
-                      onChange={ (e) => setTransactionRef(e.target.value) }
-                      sx={ {
-                        mb: 2,
-                        '& .MuiOutlinedInput-root': { borderRadius: 2 },
-                      } }
-                    />
+                        {/* UPI ID */ }
+                        <Box
+                          sx={ {
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 1,
+                            mb: 3,
+                            p: 1.5,
+                            borderRadius: 2,
+                            bgcolor: '#f8fafc',
+                            border: '1px solid #e2e8f0',
+                          } }
+                        >
+                          <AccountBalance sx={ { color: '#5a6a80', fontSize: 20 } } />
+                          <Typography variant="body2" fontWeight={ 600 } sx={ { fontFamily: 'Poppins' } }>
+                            UPI: { paymentData.merchantUPI }
+                          </Typography>
+                          <Button
+                            size="small"
+                            startIcon={ <ContentCopy sx={ { fontSize: 14 } } /> }
+                            onClick={ () => copyToClipboard(paymentData.merchantUPI) }
+                            sx={ { fontSize: '0.7rem', color: '#03288C', minWidth: 'auto' } }
+                          >
+                            { copied ? 'Copied!' : 'Copy' }
+                          </Button>
+                        </Box>
 
-                    { error && (
-                      <Alert severity="error" sx={ { mb: 2, borderRadius: 2 } }>{ error }</Alert>
+                        <Divider sx={ { my: 2 } } />
+
+                        {/* Transaction Reference */ }
+                        <Typography variant="subtitle2" fontWeight={ 700 } sx={ { mb: 1 } }>
+                          After paying, enter your UPI Transaction ID (optional)
+                        </Typography>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          placeholder="e.g. 123456789012 or UPI ref number"
+                          value={ transactionRef }
+                          onChange={ (e) => setTransactionRef(e.target.value) }
+                          sx={ {
+                            mb: 2,
+                            '& .MuiOutlinedInput-root': { borderRadius: 2 },
+                          } }
+                        />
+
+                        { error && (
+                          <Alert severity="error" sx={ { mb: 2, borderRadius: 2 } }>{ error }</Alert>
+                        ) }
+
+                        {/* Confirm Payment Button */ }
+                        <Button
+                          fullWidth
+                          variant="contained"
+                          size="large"
+                          onClick={ handleVerifyPayment }
+                          disabled={ paymentVerifying || paymentTimer === 0 }
+                          startIcon={ paymentVerifying ? <CircularProgress size={ 20 } color="inherit" /> : <CheckCircle /> }
+                          sx={ {
+                            bgcolor: '#22c55e',
+                            borderRadius: '6px',
+                            py: 1.5,
+                            fontSize: '1rem',
+                            fontWeight: 700,
+                            '&:hover': { bgcolor: '#16a34a' },
+                          } }
+                        >
+                          { paymentVerifying ? 'Verifying Payment...' : 'I Have Paid — Confirm' }
+                        </Button>
+
+                        { paymentTimer === 0 && (
+                          <Alert severity="warning" sx={ { mt: 2, borderRadius: 2 } }>
+                            QR code expired. Please go back and try again.
+                          </Alert>
+                        ) }
+
+                        <Typography variant="caption" color="text.secondary" sx={ { display: 'block', textAlign: 'center', mt: 2 } }>
+                          Your payment will be verified and order confirmed instantly
+                        </Typography>
+                      </Box>
                     ) }
 
-                    {/* Confirm Payment Button */ }
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      size="large"
-                      onClick={ handleVerifyPayment }
-                      disabled={ paymentVerifying || paymentTimer === 0 }
-                      startIcon={ paymentVerifying ? <CircularProgress size={ 20 } color="inherit" /> : <CheckCircle /> }
-                      sx={ {
-                        bgcolor: '#22c55e',
-                        borderRadius: '6px',
-                        py: 1.5,
-                        fontSize: '1rem',
-                        fontWeight: 700,
-                        '&:hover': { bgcolor: '#16a34a' },
-                      } }
-                    >
-                      { paymentVerifying ? 'Verifying Payment...' : 'I Have Paid — Confirm' }
-                    </Button>
-
-                    { paymentTimer === 0 && (
-                      <Alert severity="warning" sx={ { mt: 2, borderRadius: 2 } }>
-                        QR code expired. Please go back and try again.
-                      </Alert>
-                    ) }
-
-                    <Typography variant="caption" color="text.secondary" sx={ { display: 'block', textAlign: 'center', mt: 2 } }>
-                      Your payment will be verified and order confirmed instantly
-                    </Typography>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -629,10 +947,10 @@ const Checkout = () => {
                   variant="contained"
                   onClick={ handleProceedToPayment }
                   disabled={ placing || paymentLoading }
-                  startIcon={ (placing || paymentLoading) ? <CircularProgress size={ 20 } color="inherit" /> : <QrCode2 /> }
-                  sx={ { bgcolor: '#03288C', borderRadius: '6px', px: 4, '&:hover': { bgcolor: '#03288C' } } }
+                  startIcon={ (placing || paymentLoading) ? <CircularProgress size={ 20 } color="inherit" /> : <Payment /> }
+                  sx={ { bgcolor: '#03288C', borderRadius: '6px', px: 4, '&:hover': { bgcolor: '#021A66' } } }
                 >
-                  { placing ? 'Creating Order...' : paymentLoading ? 'Generating QR...' : 'Proceed to Pay' }
+                  { placing ? 'Creating Order...' : paymentLoading ? 'Preparing Payment...' : 'Proceed to Pay' }
                 </Button>
               ) }
             </Box>
