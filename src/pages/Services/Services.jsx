@@ -26,6 +26,7 @@ import { categories as fallbackCategories, services as fallbackServices } from '
 import api from '../../utils/api';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
+import OffersSection from '../Home/OffersSection';
 
 const Services = () => {
   const navigate = useNavigate();
@@ -382,6 +383,9 @@ const Services = () => {
           </Box>
         ) }
       </Container>
+
+      {/* Exclusive offers — visible to signed-in users */ }
+      { isAuthenticated && <OffersSection /> }
     </Box>
   );
 };

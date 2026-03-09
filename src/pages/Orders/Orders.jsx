@@ -30,6 +30,7 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/api';
+import OffersSection from '../Home/OffersSection';
 
 const statusColors = {
   pending: { bg: '#fef3c7', text: '#d97706', icon: <HourglassTop sx={ { fontSize: 15 } } /> },
@@ -437,6 +438,9 @@ const Orders = () => {
           </DialogContent>
         </Dialog>
       </Container>
+
+      {/* Exclusive offers for signed-in users */ }
+      <OffersSection />
     </Box>
   );
 };

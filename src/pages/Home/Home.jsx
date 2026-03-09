@@ -6,7 +6,6 @@ import WhatIsGFuture from './WhatIsGFuture';
 import Workflow from './Workflow';
 import Plans from './Plans';
 import Advantages from './Advantages';
-import OffersSection from './OffersSection';
 
 const Home = () => {
   return (
@@ -16,7 +15,6 @@ const Home = () => {
       <Categories />
       <WhatIsGFuture />
       <Workflow />
-      <OffersSection />
       <Plans />
       <Advantages />
     </Box>
