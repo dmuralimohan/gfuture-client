@@ -17,6 +17,7 @@ const About = lazy(() => import('./pages/About/About'));
 const Orders = lazy(() => import('./pages/Orders/Orders'));
 const Checkout = lazy(() => import('./pages/Checkout/Checkout'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy/PrivacyPolicy'));
+const DeleteAccount = lazy(() => import('./pages/Auth/DeleteAccount'));
 
 // Admin pages
 const AdminLayout = lazy(() => import('./pages/Admin/AdminLayout'));
@@ -55,6 +56,7 @@ const AppRoutes = () => (
       <Route path="/about" element={ <About /> } />
       <Route path="/orders" element={ <Orders /> } />
       <Route path="/page/privacy-policy" element={ <PrivacyPolicy /> } />
+      <Route path="/account/delete" element={ <DeleteAccount /> } />
 
       {/* Admin Panel */ }
       <Route path="/admin" element={ <AdminLayout /> }>
