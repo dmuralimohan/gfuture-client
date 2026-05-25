@@ -2,53 +2,29 @@ import { useState, useEffect } from 'react';
 import { Box, Container, Typography, Avatar, Chip } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import {
-  BuildCircle,
-  ElectricalServices,
-  CleaningServices,
-  WaterDrop,
-  Bathtub,
-  AcUnit,
-  FormatPaint,
-  BugReport,
-} from '@mui/icons-material';
-import { categories as fallbackCategories } from '../../data/mockData';
+import * as MuiIcons from '@mui/icons-material';
 import api from '../../utils/api';
 
-const iconMap = {
-  BuildCircle: <BuildCircle />,
-  ElectricalServices: <ElectricalServices />,
-  CleaningServices: <CleaningServices />,
-  WaterDrop: <WaterDrop />,
-  Bathtub: <Bathtub />,
-  AcUnit: <AcUnit />,
-  FormatPaint: <FormatPaint />,
-  BugReport: <BugReport />,
-};
+const resolveCategoryIcon = (iconName) => {
+  const iconKey = String(iconName || '').trim();
+  const IconComponent = MuiIcons[iconKey];
+  if (IconComponent) return <IconComponent />;
 
-const resolveCategoryIcon = (category, fallbackCategory) => {
-  const iconKey = category?.icon || fallbackCategory?.icon;
-  return iconMap[iconKey] || <BuildCircle />;
+  // Keep a visible placeholder when API sends an invalid or unknown icon name.
+  return <MuiIcons.HelpOutline />;
 };
 
 const Categories = () => {
   const navigate = useNavigate();
-  const [categories, setCategories] = useState(fallbackCategories);
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const { data } = await api.cachedGet('/api/categories');
-        // Keep API icon when present; otherwise fallback by id/name.
-        const mapped = data.categories.map((cat) => {
-          const fallback =
-            fallbackCategories.find((f) => f.id === cat.id)
-            || fallbackCategories.find((f) => f.name === cat.name);
-          return { ...cat, icon: cat.icon || fallback?.icon || 'BuildCircle' };
-        });
-        setCategories(mapped);
+        setCategories(Array.isArray(data?.categories) ? data.categories : []);
       } catch {
-        // keep fallback
+        setCategories([]);
       }
     };
     fetchCategories();
@@ -86,7 +62,6 @@ const Categories = () => {
           } }
         >
           { categories.map((cat, index) => (
-            // Find the matching fallback again so UI keeps rendering even when API icon is missing.
             <motion.div
               key={ cat.id }
               initial={ { opacity: 0, scale: 0.8 } }
@@ -122,7 +97,7 @@ const Categories = () => {
                     },
                   } }
                 >
-                  { resolveCategoryIcon(cat, fallbackCategories.find((f) => f.id === cat.id || f.name === cat.name)) }
+                  { resolveCategoryIcon(cat.icon) }
                 </Avatar>
                 <Typography
                   variant="caption"
