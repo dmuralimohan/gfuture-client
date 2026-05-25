@@ -26,6 +26,11 @@ const iconMap = {
   BugReport: <BugReport />,
 };
 
+const resolveCategoryIcon = (category, fallbackCategory) => {
+  const iconKey = category?.icon || fallbackCategory?.icon;
+  return iconMap[iconKey] || <BuildCircle />;
+};
+
 const Categories = () => {
   const navigate = useNavigate();
   const [categories, setCategories] = useState(fallbackCategories);
@@ -34,10 +39,12 @@ const Categories = () => {
     const fetchCategories = async () => {
       try {
         const { data } = await api.cachedGet('/api/categories');
-        // Map backend categories, keeping icon from fallback if available
+        // Keep API icon when present; otherwise fallback by id/name.
         const mapped = data.categories.map((cat) => {
-          const fallback = fallbackCategories.find((f) => f.id === cat.id);
-          return { ...cat, icon: fallback?.icon || 'BuildCircle' };
+          const fallback =
+            fallbackCategories.find((f) => f.id === cat.id)
+            || fallbackCategories.find((f) => f.name === cat.name);
+          return { ...cat, icon: cat.icon || fallback?.icon || 'BuildCircle' };
         });
         setCategories(mapped);
       } catch {
@@ -79,6 +86,7 @@ const Categories = () => {
           } }
         >
           { categories.map((cat, index) => (
+            // Find the matching fallback again so UI keeps rendering even when API icon is missing.
             <motion.div
               key={ cat.id }
               initial={ { opacity: 0, scale: 0.8 } }
@@ -114,7 +122,7 @@ const Categories = () => {
                     },
                   } }
                 >
-                  { iconMap[cat.icon] }
+                  { resolveCategoryIcon(cat, fallbackCategories.find((f) => f.id === cat.id || f.name === cat.name)) }
                 </Avatar>
                 <Typography
                   variant="caption"

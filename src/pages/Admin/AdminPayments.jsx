@@ -140,11 +140,30 @@ const AdminPayments = () => {
             </CardContent>
           </Card>
         </Grid>
+        <Grid item xs={ 12 } sm={ 6 } md={ 3 }>
+          <Card sx={ { borderRadius: 3, border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'none' } }>
+            <CardContent>
+              <Typography variant="caption" color="text.secondary">Open Alerts</Typography>
+              <Typography variant="h6" fontWeight={ 800 } color="#c62828">
+                { audit?.alertSummary?.open_total || 0 }
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Critical: { audit?.alertSummary?.open_critical || 0 } | High: { audit?.alertSummary?.open_high || 0 }
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
       </Grid>
 
       { audit && !auditLoading && (audit.anomalies || []).length > 0 && (
         <Alert severity="warning" sx={ { mb: 2, borderRadius: 2 } }>
           Found { (audit.anomalies || []).length } payment anomalies. Review the audit table below.
+        </Alert>
+      ) }
+
+      { audit && !auditLoading && (audit?.alertSummary?.open_total || 0) > 0 && (
+        <Alert severity="error" sx={ { mb: 2, borderRadius: 2 } }>
+          { audit?.alertSummary?.open_total || 0 } unresolved payment alerts detected ({ audit?.alertSummary?.open_critical || 0 } critical, { audit?.alertSummary?.open_high || 0 } high).
         </Alert>
       ) }
 
@@ -193,6 +212,62 @@ const AdminPayments = () => {
                   <TableRow>
                     <TableCell colSpan={ 8 } align="center" sx={ { py: 4 } }>
                       <Typography color="text.secondary">No audit anomalies found</Typography>
+                    </TableCell>
+                  </TableRow>
+                ) }
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </CardContent>
+      </Card>
+
+      <Card sx={ { borderRadius: 3, border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'none', mb: 3 } }>
+        <CardContent sx={ { p: 0 } }>
+          <Box sx={ { px: 2, py: 1.5, borderBottom: '1px solid rgba(0,0,0,0.06)' } }>
+            <Typography variant="subtitle1" fontWeight={ 700 }>Recent Payment Alerts</Typography>
+          </Box>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow sx={ { bgcolor: 'rgba(0,0,0,0.02)' } }>
+                  <TableCell sx={ { fontWeight: 700 } }>Time</TableCell>
+                  <TableCell sx={ { fontWeight: 700 } }>Type</TableCell>
+                  <TableCell sx={ { fontWeight: 700 } }>Severity</TableCell>
+                  <TableCell sx={ { fontWeight: 700 } }>Source</TableCell>
+                  <TableCell sx={ { fontWeight: 700 } }>Payment</TableCell>
+                  <TableCell sx={ { fontWeight: 700 } }>Order</TableCell>
+                  <TableCell sx={ { fontWeight: 700 } }>Message</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                { (audit?.recentAlerts || []).map((a) => (
+                  <TableRow key={ a.id } hover>
+                    <TableCell>
+                      <Typography variant="caption" color="text.secondary">
+                        { a.created_at ? new Date(a.created_at).toLocaleString() : '-' }
+                      </Typography>
+                    </TableCell>
+                    <TableCell><Typography variant="body2" fontWeight={ 600 }>{ a.type }</Typography></TableCell>
+                    <TableCell>
+                      <Chip
+                        label={ a.severity }
+                        size="small"
+                        color={ a.severity === 'critical' || a.severity === 'high' ? 'error' : 'warning' }
+                        sx={ { fontWeight: 600, fontSize: 11 } }
+                      />
+                    </TableCell>
+                    <TableCell>{ a.source || 'system' }</TableCell>
+                    <TableCell sx={ { fontFamily: 'monospace', fontSize: 12 } }>{ a.payment_id ? `${a.payment_id.substring(0, 8)}...` : '-' }</TableCell>
+                    <TableCell sx={ { fontFamily: 'monospace', fontSize: 12 } }>{ a.order_id ? `${a.order_id.substring(0, 8)}...` : '-' }</TableCell>
+                    <TableCell>
+                      <Typography variant="caption" color="text.secondary">{ a.message }</Typography>
+                    </TableCell>
+                  </TableRow>
+                )) }
+                { !auditLoading && (audit?.recentAlerts || []).length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={ 7 } align="center" sx={ { py: 4 } }>
+                      <Typography color="text.secondary">No payment alerts found in selected window</Typography>
                     </TableCell>
                   </TableRow>
                 ) }

@@ -229,11 +229,17 @@ const Checkout = () => {
       return;
     }
 
+    const razorpayPublicKey = import.meta.env.VITE_RAZORPAY_KEY_ID || payment.razorpayKeyId || '';
+    if (!razorpayPublicKey) {
+      setError('Razorpay key is not configured. Please contact support.');
+      return;
+    }
+
     setRazorpayProcessing(true);
     setError('');
 
     const options = {
-      key: payment.razorpayKeyId,
+      key: razorpayPublicKey,
       amount: Math.round(payment.amount * 100),
       currency: 'INR',
       name: 'GFuture',
@@ -277,7 +283,11 @@ const Checkout = () => {
           setOrderPlaced(true);
           clearInterval(timerRef.current);
         } catch (err) {
-          setError(err.response?.data?.message || 'Payment verification failed. Please contact support.');
+          startPaymentPolling(payment.id);
+          setError(
+            err.response?.data?.message
+            || 'Verification is pending. We will confirm automatically when webhook updates payment status.'
+          );
         } finally {
           setPaymentVerifying(false);
         }
@@ -287,7 +297,8 @@ const Checkout = () => {
     const rzp = new window.Razorpay(options);
     rzp.on('payment.failed', (response) => {
       setRazorpayProcessing(false);
-      setError(`Payment failed: ${response.error.description || 'Please try again'}`);
+      startPaymentPolling(payment.id);
+      setError(`Payment failed or pending: ${response.error.description || 'Tracking status via webhook...'}`);
     });
     rzp.open();
   }, [user, clearCart]);
