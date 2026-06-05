@@ -45,90 +45,100 @@ const Login = () => {
 
   return (
     <Box
-      sx={{
+      sx={ {
         minHeight: '80vh',
         display: 'flex',
         alignItems: 'center',
         py: 6,
         background: 'linear-gradient(135deg, #eaf1fb 0%, #f0f5ff 100%)',
-      }}
+      } }
     >
       <Container maxWidth="sm">
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          initial={ { opacity: 0, y: 40 } }
+          animate={ { opacity: 1, y: 0 } }
+          transition={ { duration: 0.6 } }
         >
-          <Card sx={{ borderRadius: 4, boxShadow: '0 8px 40px rgba(15,43,102,0.08)' }}>
-            <CardContent sx={{ p: { xs: 3, md: 5 } }}>
-              <Box sx={{ textAlign: 'center', mb: 4 }}>
+          <Card sx={ { borderRadius: 4, boxShadow: '0 8px 40px rgba(15,43,102,0.08)' } }>
+            <CardContent sx={ { p: { xs: 3, md: 5 } } }>
+              <Box sx={ { textAlign: 'center', mb: 4 } }>
                 <Box
                   component="img"
                   src="/logo-header.png"
                   alt="G-Future"
-                  sx={{ height: 44, width: 'auto', mx: 'auto', mb: 2, display: 'block' }}
+                  sx={ { height: 44, width: 'auto', mx: 'auto', mb: 2, display: 'block' } }
                 />
-                <Typography variant="h4" fontWeight={800}>
+                <Typography variant="h4" fontWeight={ 800 }>
                   Welcome Back
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                <Typography variant="body2" color="text.secondary" sx={ { mt: 1 } }>
                   Sign in to your G-Future account
                 </Typography>
               </Box>
 
-              {error && (
-                <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
-                  {error}
+              { error && (
+                <Alert severity="error" sx={ { mb: 3, borderRadius: 2 } }>
+                  { error }
                 </Alert>
-              )}
+              ) }
 
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={ handleSubmit }>
                 <TextField
                   fullWidth
                   label="Email Address"
                   name="email"
                   type="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  sx={{ mb: 2.5 }}
-                  InputProps={{
+                  value={ form.email }
+                  onChange={ handleChange }
+                  sx={ { mb: 2.5 } }
+                  InputProps={ {
                     startAdornment: (
                       <InputAdornment position="start">
-                        <Email sx={{ color: '#5a6a80' }} />
+                        <Email sx={ { color: '#5a6a80' } } />
                       </InputAdornment>
                     ),
-                  }}
+                  } }
                 />
                 <TextField
                   fullWidth
                   label="Password"
                   name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={form.password}
-                  onChange={handleChange}
-                  sx={{ mb: 3 }}
-                  InputProps={{
+                  type={ showPassword ? 'text' : 'password' }
+                  value={ form.password }
+                  onChange={ handleChange }
+                  sx={ { mb: 3 } }
+                  InputProps={ {
                     startAdornment: (
                       <InputAdornment position="start">
-                        <Lock sx={{ color: '#5a6a80' }} />
+                        <Lock sx={ { color: '#5a6a80' } } />
                       </InputAdornment>
                     ),
                     endAdornment: (
                       <InputAdornment position="end">
-                        <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        <IconButton onClick={ () => setShowPassword(!showPassword) } edge="end">
+                          { showPassword ? <VisibilityOff /> : <Visibility /> }
                         </IconButton>
                       </InputAdornment>
                     ),
-                  }}
+                  } }
                 />
+
+                <Box sx={ { display: 'flex', justifyContent: 'flex-end', mb: 2.5 } }>
+                  <Box
+                    component={ Link }
+                    to="/forgot-password"
+                    sx={ { color: '#03288C', fontWeight: 600, textDecoration: 'none', fontSize: '0.9rem' } }
+                  >
+                    Forgot password?
+                  </Box>
+                </Box>
 
                 <Button
                   type="submit"
                   variant="contained"
                   size="large"
-                  disabled={loading}
-                  sx={{
+                  disabled={ loading }
+                  sx={ {
                     bgcolor: '#03288C',
                     borderRadius: '6px',
                     py: 1.5,
@@ -138,24 +148,24 @@ const Login = () => {
                     mx: 'auto',
                     display: 'block',
                     '&:hover': { bgcolor: '#021A66' },
-                  }}
+                  } }
                 >
-                  {loading ? 'Signing in...' : 'Sign In'}
+                  { loading ? 'Signing in...' : 'Sign In' }
                 </Button>
               </form>
 
-              <Divider sx={{ my: 3 }}>
+              <Divider sx={ { my: 3 } }>
                 <Typography variant="caption" color="text.secondary">
                   OR
                 </Typography>
               </Divider>
 
-              <Typography variant="body2" sx={{ textAlign: 'center', color: '#5a6a80' }}>
-                Don't have an account?{' '}
+              <Typography variant="body2" sx={ { textAlign: 'center', color: '#5a6a80' } }>
+                Don't have an account?{ ' ' }
                 <Box
-                  component={Link}
+                  component={ Link }
                   to="/signup"
-                  sx={{ color: '#03288C', fontWeight: 600, textDecoration: 'none' }}
+                  sx={ { color: '#03288C', fontWeight: 600, textDecoration: 'none' } }
                 >
                   Sign up for free
                 </Box>

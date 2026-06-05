@@ -8,6 +8,7 @@ const Services = lazy(() => import('./pages/Services/Services'));
 const ServiceDetail = lazy(() => import('./pages/ServiceDetail/ServiceDetail'));
 const Login = lazy(() => import('./pages/Auth/Login'));
 const Signup = lazy(() => import('./pages/Auth/Signup'));
+const ForgotPassword = lazy(() => import('./pages/Auth/ForgotPassword'));
 const Cart = lazy(() => import('./pages/Cart/Cart'));
 const Profile = lazy(() => import('./pages/Profile/Profile'));
 const ProviderDashboard = lazy(() => import('./pages/Provider/ProviderDashboard'));
@@ -47,6 +48,7 @@ const AppRoutes = () => (
       <Route path="/services/:id" element={ <ServiceDetail /> } />
       <Route path="/login" element={ <Login /> } />
       <Route path="/signup" element={ <Signup /> } />
+      <Route path="/forgot-password" element={ <ForgotPassword /> } />
       <Route path="/cart" element={ <Cart /> } />
       <Route path="/checkout" element={ <Checkout /> } />
       <Route path="/profile" element={ <Profile /> } />

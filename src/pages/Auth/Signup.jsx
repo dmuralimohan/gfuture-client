@@ -56,7 +56,6 @@ const Signup = () => {
   const [otpError, setOtpError] = useState('');
   const [otpSuccess, setOtpSuccess] = useState('');
   const [countdown, setCountdown] = useState(0);
-  const [devOtp, setDevOtp] = useState('');
   const otpRefs = useRef([]);
 
   // Countdown timer for OTP resend
@@ -80,15 +79,11 @@ const Signup = () => {
     }
     setOtpSending(true);
     setOtpError('');
-    setDevOtp('');
     try {
-      const { data } = await api.post('/api/otp/send', { phone: form.phone });
+      await api.post('/api/otp/send', { phone: form.phone });
       setOtpSent(true);
       setCountdown(60);
       setOtpSuccess('OTP sent to your phone!');
-      if (data._dev_otp) {
-        setDevOtp(data._dev_otp);
-      }
       setTimeout(() => setOtpSuccess(''), 5000);
     } catch (err) {
       setOtpError(err.response?.data?.message || 'Failed to send OTP');
@@ -183,44 +178,44 @@ const Signup = () => {
 
   return (
     <Box
-      sx={{
+      sx={ {
         minHeight: '80vh',
         display: 'flex',
         alignItems: 'center',
         py: 6,
         background: 'linear-gradient(135deg, #eaf1fb 0%, #f0f5ff 100%)',
-      }}
+      } }
     >
       <Container maxWidth="sm">
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          initial={ { opacity: 0, y: 40 } }
+          animate={ { opacity: 1, y: 0 } }
+          transition={ { duration: 0.6 } }
         >
-          <Card sx={{ borderRadius: 4, boxShadow: '0 8px 40px rgba(15,43,102,0.08)' }}>
-            <CardContent sx={{ p: { xs: 3, md: 5 } }}>
-              <Box sx={{ textAlign: 'center', mb: 4 }}>
+          <Card sx={ { borderRadius: 4, boxShadow: '0 8px 40px rgba(15,43,102,0.08)' } }>
+            <CardContent sx={ { p: { xs: 3, md: 5 } } }>
+              <Box sx={ { textAlign: 'center', mb: 4 } }>
                 <Box
                   component="img"
                   src="/logo-header.png"
                   alt="G-Future"
-                  sx={{ height: 44, width: 'auto', mx: 'auto', mb: 2, display: 'block' }}
+                  sx={ { height: 44, width: 'auto', mx: 'auto', mb: 2, display: 'block' } }
                 />
-                <Typography variant="h4" fontWeight={800}>
+                <Typography variant="h4" fontWeight={ 800 }>
                   Join G-Future
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                <Typography variant="body2" color="text.secondary" sx={ { mt: 1 } }>
                   Create your account and start earning together
                 </Typography>
               </Box>
 
-              {/* Role Toggle */}
-              <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+              {/* Role Toggle */ }
+              <Box sx={ { display: 'flex', justifyContent: 'center', mb: 3 } }>
                 <ToggleButtonGroup
-                  value={form.role}
+                  value={ form.role }
                   exclusive
-                  onChange={(_, val) => val && setForm({ ...form, role: val })}
-                  sx={{
+                  onChange={ (_, val) => val && setForm({ ...form, role: val }) }
+                  sx={ {
                     gap: 1.5,
                     '& .MuiToggleButton-root': {
                       borderRadius: '24px !important',
@@ -236,55 +231,55 @@ const Signup = () => {
                         '&:hover': { bgcolor: '#021A66' },
                       },
                     },
-                  }}
+                  } }
                 >
                   <ToggleButton value="customer">I'm a Customer</ToggleButton>
                   <ToggleButton value="provider">I'm a Service Provider</ToggleButton>
                 </ToggleButtonGroup>
               </Box>
 
-              {error && (
-                <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
-                  {error}
+              { error && (
+                <Alert severity="error" sx={ { mb: 3, borderRadius: 2 } }>
+                  { error }
                 </Alert>
-              )}
+              ) }
 
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={ handleSubmit }>
                 <TextField
                   fullWidth
                   label="Full Name"
                   name="name"
-                  value={form.name}
-                  onChange={handleChange}
-                  sx={{ mb: 2 }}
-                  InputProps={{
+                  value={ form.name }
+                  onChange={ handleChange }
+                  sx={ { mb: 2 } }
+                  InputProps={ {
                     startAdornment: (
                       <InputAdornment position="start">
-                        <Person sx={{ color: '#5a6a80' }} />
+                        <Person sx={ { color: '#5a6a80' } } />
                       </InputAdornment>
                     ),
-                  }}
+                  } }
                 />
                 <TextField
                   fullWidth
                   label="Email Address"
                   name="email"
                   type="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  sx={{ mb: 2 }}
-                  InputProps={{
+                  value={ form.email }
+                  onChange={ handleChange }
+                  sx={ { mb: 2 } }
+                  InputProps={ {
                     startAdornment: (
                       <InputAdornment position="start">
-                        <Email sx={{ color: '#5a6a80' }} />
+                        <Email sx={ { color: '#5a6a80' } } />
                       </InputAdornment>
                     ),
-                  }}
+                  } }
                 />
 
-                {/* Phone + OTP Section */}
+                {/* Phone + OTP Section */ }
                 <Box
-                  sx={{
+                  sx={ {
                     mb: 2,
                     p: 2,
                     borderRadius: 3,
@@ -295,53 +290,53 @@ const Signup = () => {
                         : '1px solid rgba(0,0,0,0.12)',
                     bgcolor: otpVerified ? '#f0fdf4' : otpSent ? '#f0f4ff' : 'transparent',
                     transition: 'all 0.3s ease',
-                  }}
+                  } }
                 >
-                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
+                  <Box sx={ { display: 'flex', gap: 1, alignItems: 'flex-start' } }>
                     <TextField
                       fullWidth
                       label="Phone Number"
                       name="phone"
-                      value={form.phone}
-                      onChange={(e) => {
+                      value={ form.phone }
+                      onChange={ (e) => {
                         handleChange(e);
                         if (otpSent) {
                           setOtpSent(false);
                           setOtpVerified(false);
                           setOtpValues(Array(OTP_LENGTH).fill(''));
                         }
-                      }}
-                      disabled={otpVerified}
+                      } }
+                      disabled={ otpVerified }
                       placeholder="9876543210"
-                      InputProps={{
+                      InputProps={ {
                         startAdornment: (
                           <InputAdornment position="start">
-                            <Phone sx={{ color: otpVerified ? '#22c55e' : '#5a6a80' }} />
+                            <Phone sx={ { color: otpVerified ? '#22c55e' : '#5a6a80' } } />
                           </InputAdornment>
                         ),
                         endAdornment: otpVerified ? (
                           <InputAdornment position="end">
                             <Chip
-                              icon={<CheckCircle sx={{ fontSize: 16 }} />}
+                              icon={ <CheckCircle sx={ { fontSize: 16 } } /> }
                               label="Verified"
                               size="small"
-                              sx={{
+                              sx={ {
                                 bgcolor: '#22c55e',
                                 color: '#fff',
                                 fontWeight: 700,
                                 fontSize: '0.7rem',
-                              }}
+                              } }
                             />
                           </InputAdornment>
                         ) : null,
-                      }}
+                      } }
                     />
-                    {!otpSent && !otpVerified && (
+                    { !otpSent && !otpVerified && (
                       <Button
                         variant="contained"
-                        onClick={handleSendOtp}
-                        disabled={otpSending || !form.phone}
-                        sx={{
+                        onClick={ handleSendOtp }
+                        disabled={ otpSending || !form.phone }
+                        sx={ {
                           mt: 0.5,
                           minWidth: 110,
                           height: 48,
@@ -353,45 +348,37 @@ const Signup = () => {
                           whiteSpace: 'nowrap',
                           '&:hover': { bgcolor: '#021A66', color: '#fff' },
                           '&.Mui-disabled': { color: '#fff' },
-                        }}
+                        } }
                       >
-                        {otpSending ? <CircularProgress size={20} color="inherit" /> : 'Send OTP'}
+                        { otpSending ? <CircularProgress size={ 20 } color="inherit" /> : 'Send OTP' }
                       </Button>
-                    )}
+                    ) }
                   </Box>
 
-                  {/* OTP Input */}
+                  {/* OTP Input */ }
                   <AnimatePresence>
-                    {otpSent && !otpVerified && (
+                    { otpSent && !otpVerified && (
                       <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3 }}
+                        initial={ { opacity: 0, height: 0 } }
+                        animate={ { opacity: 1, height: 'auto' } }
+                        exit={ { opacity: 0, height: 0 } }
+                        transition={ { duration: 0.3 } }
                       >
-                        <Box sx={{ mt: 2 }}>
-                          <Typography variant="caption" color="text.secondary" sx={{ mb: 1.5, display: 'block' }}>
+                        <Box sx={ { mt: 2 } }>
+                          <Typography variant="caption" color="text.secondary" sx={ { mb: 1.5, display: 'block' } }>
                             Enter the 6-digit OTP sent to your phone
                           </Typography>
 
-                          {devOtp && (
-                            <Alert severity="info" sx={{ mb: 1.5, borderRadius: 2, py: 0.5 }}>
-                              <Typography variant="caption">
-                                <strong>Dev Mode OTP:</strong> {devOtp}
-                              </Typography>
-                            </Alert>
-                          )}
-
-                          {/* OTP Boxes */}
-                          <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', mb: 2 }}>
-                            {otpValues.map((val, i) => (
+                          {/* OTP Boxes */ }
+                          <Box sx={ { display: 'flex', gap: 1, justifyContent: 'center', mb: 2 } }>
+                            { otpValues.map((val, i) => (
                               <TextField
-                                key={i}
-                                inputRef={(el) => { otpRefs.current[i] = el; }}
-                                value={val}
-                                onChange={(e) => handleOtpChange(i, e.target.value)}
-                                onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                                inputProps={{
+                                key={ i }
+                                inputRef={ (el) => { otpRefs.current[i] = el; } }
+                                value={ val }
+                                onChange={ (e) => handleOtpChange(i, e.target.value) }
+                                onKeyDown={ (e) => handleOtpKeyDown(i, e) }
+                                inputProps={ {
                                   maxLength: i === 0 ? OTP_LENGTH : 1,
                                   style: {
                                     textAlign: 'center',
@@ -400,8 +387,8 @@ const Signup = () => {
                                     fontFamily: 'Poppins',
                                     padding: '10px 0',
                                   },
-                                }}
-                                sx={{
+                                } }
+                                sx={ {
                                   width: 48,
                                   '& .MuiOutlinedInput-root': {
                                     borderRadius: 2,
@@ -413,52 +400,52 @@ const Signup = () => {
                                       },
                                     },
                                   },
-                                }}
+                                } }
                               />
-                            ))}
+                            )) }
                           </Box>
 
-                          {otpError && (
-                            <Alert severity="error" sx={{ mb: 1.5, borderRadius: 2, py: 0.5 }}>
-                              {otpError}
+                          { otpError && (
+                            <Alert severity="error" sx={ { mb: 1.5, borderRadius: 2, py: 0.5 } }>
+                              { otpError }
                             </Alert>
-                          )}
-                          {otpSuccess && (
-                            <Alert severity="success" sx={{ mb: 1.5, borderRadius: 2, py: 0.5 }}>
-                              {otpSuccess}
+                          ) }
+                          { otpSuccess && (
+                            <Alert severity="success" sx={ { mb: 1.5, borderRadius: 2, py: 0.5 } }>
+                              { otpSuccess }
                             </Alert>
-                          )}
+                          ) }
 
-                          <Box sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Box sx={ { display: 'flex', gap: 1, justifyContent: 'space-between', alignItems: 'center' } }>
                             <Button
                               variant="contained"
                               size="small"
-                              startIcon={otpVerifying ? <CircularProgress size={16} color="inherit" /> : <CheckCircle />}
-                              onClick={handleVerifyOtp}
-                              disabled={otpVerifying || otpValues.join('').length !== OTP_LENGTH}
-                              sx={{
+                              startIcon={ otpVerifying ? <CircularProgress size={ 16 } color="inherit" /> : <CheckCircle /> }
+                              onClick={ handleVerifyOtp }
+                              disabled={ otpVerifying || otpValues.join('').length !== OTP_LENGTH }
+                              sx={ {
                                 bgcolor: '#22c55e',
                                 color: '#fff',
                                 borderRadius: 2,
                                 fontWeight: 600,
                                 '&:hover': { bgcolor: '#16a34a', color: '#fff' },
                                 '&.Mui-disabled': { color: '#fff' },
-                              }}
+                              } }
                             >
-                              {otpVerifying ? 'Verifying...' : 'Verify OTP'}
+                              { otpVerifying ? 'Verifying...' : 'Verify OTP' }
                             </Button>
                             <Button
                               size="small"
-                              disabled={countdown > 0}
-                              onClick={handleSendOtp}
-                              sx={{ color: '#5a6a80', fontSize: '0.8rem' }}
+                              disabled={ countdown > 0 }
+                              onClick={ handleSendOtp }
+                              sx={ { color: '#5a6a80', fontSize: '0.8rem' } }
                             >
-                              {countdown > 0 ? `Resend in ${countdown}s` : 'Resend OTP'}
+                              { countdown > 0 ? `Resend in ${countdown}s` : 'Resend OTP' }
                             </Button>
                           </Box>
                         </Box>
                       </motion.div>
-                    )}
+                    ) }
                   </AnimatePresence>
                 </Box>
 
@@ -466,48 +453,48 @@ const Signup = () => {
                   fullWidth
                   label="Password"
                   name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={form.password}
-                  onChange={handleChange}
-                  sx={{ mb: 2 }}
-                  InputProps={{
+                  type={ showPassword ? 'text' : 'password' }
+                  value={ form.password }
+                  onChange={ handleChange }
+                  sx={ { mb: 2 } }
+                  InputProps={ {
                     startAdornment: (
                       <InputAdornment position="start">
-                        <Lock sx={{ color: '#5a6a80' }} />
+                        <Lock sx={ { color: '#5a6a80' } } />
                       </InputAdornment>
                     ),
                     endAdornment: (
                       <InputAdornment position="end">
-                        <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        <IconButton onClick={ () => setShowPassword(!showPassword) } edge="end">
+                          { showPassword ? <VisibilityOff /> : <Visibility /> }
                         </IconButton>
                       </InputAdornment>
                     ),
-                  }}
+                  } }
                 />
                 <TextField
                   fullWidth
                   label="Confirm Password"
                   name="confirmPassword"
                   type="password"
-                  value={form.confirmPassword}
-                  onChange={handleChange}
-                  sx={{ mb: 3 }}
-                  InputProps={{
+                  value={ form.confirmPassword }
+                  onChange={ handleChange }
+                  sx={ { mb: 3 } }
+                  InputProps={ {
                     startAdornment: (
                       <InputAdornment position="start">
-                        <Lock sx={{ color: '#5a6a80' }} />
+                        <Lock sx={ { color: '#5a6a80' } } />
                       </InputAdornment>
                     ),
-                  }}
+                  } }
                 />
 
                 <Button
                   type="submit"
                   variant="contained"
                   size="large"
-                  disabled={loading || !otpVerified}
-                  sx={{
+                  disabled={ loading || !otpVerified }
+                  sx={ {
                     bgcolor: '#03288C',
                     color: '#fff',
                     borderRadius: '6px',
@@ -522,30 +509,30 @@ const Signup = () => {
                       bgcolor: otpVerified ? undefined : '#ccc',
                       color: '#fff',
                     },
-                  }}
+                  } }
                 >
-                  {loading ? 'Creating Account...' : 'Create Account'}
+                  { loading ? 'Creating Account...' : 'Create Account' }
                 </Button>
 
-                {!otpVerified && (
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 1 }}>
+                { !otpVerified && (
+                  <Typography variant="caption" color="text.secondary" sx={ { display: 'block', textAlign: 'center', mt: 1 } }>
                     Verify your phone number to enable signup
                   </Typography>
-                )}
+                ) }
               </form>
 
-              <Divider sx={{ my: 3 }}>
+              <Divider sx={ { my: 3 } }>
                 <Typography variant="caption" color="text.secondary">
                   OR
                 </Typography>
               </Divider>
 
-              <Typography variant="body2" sx={{ textAlign: 'center', color: '#5a6a80' }}>
-                Already have an account?{' '}
+              <Typography variant="body2" sx={ { textAlign: 'center', color: '#5a6a80' } }>
+                Already have an account?{ ' ' }
                 <Box
-                  component={Link}
+                  component={ Link }
                   to="/login"
-                  sx={{ color: '#03288C', fontWeight: 600, textDecoration: 'none' }}
+                  sx={ { color: '#03288C', fontWeight: 600, textDecoration: 'none' } }
                 >
                   Sign in
                 </Box>
