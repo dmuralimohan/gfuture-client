@@ -298,7 +298,7 @@ const Profile = () => {
                       value={ form.phone }
                       onChange={ (e) => setForm({ ...form, phone: e.target.value }) }
                       disabled={ !editing }
-                      placeholder="+91 9876543210"
+                      placeholder="+91 0123456789"
                       sx={ { '& .MuiOutlinedInput-root': { borderRadius: 2 } } }
                     />
                   </Grid>

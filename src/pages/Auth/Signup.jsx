@@ -307,7 +307,7 @@ const Signup = () => {
                         }
                       } }
                       disabled={ otpVerified }
-                      placeholder="9876543210"
+                      placeholder="0123456789"
                       InputProps={ {
                         startAdornment: (
                           <InputAdornment position="start">

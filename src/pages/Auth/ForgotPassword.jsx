@@ -176,7 +176,7 @@ const ForgotPassword = () => {
                                         name="phone"
                                         value={ form.phone }
                                         onChange={ handleChange }
-                                        placeholder="9876543210"
+                                        placeholder="0123456789"
                                         sx={ { mb: 3 } }
                                         InputProps={ {
                                             startAdornment: (
