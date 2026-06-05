@@ -1,6 +1,7 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import { Box, CircularProgress } from '@mui/material';
+import { useAuth } from './context/AuthContext';
 
 // Lazy-loaded pages
 const Home = lazy(() => import('./pages/Home/Home'));
@@ -40,13 +41,30 @@ const Loading = () => (
   </Box>
 );
 
+const RedirectIfAuthenticated = ({ children }) => {
+  const { isAuthenticated, user } = useAuth();
+
+  if (isAuthenticated) {
+    return <Navigate to={ user?.role === 'provider' ? '/provider/dashboard' : '/' } replace />;
+  }
+
+  return children;
+};
+
 const AppRoutes = () => (
   <Suspense fallback={ <Loading /> }>
     <Routes>
       <Route path="/" element={ <Home /> } />
       <Route path="/services" element={ <Services /> } />
       <Route path="/services/:id" element={ <ServiceDetail /> } />
-      <Route path="/login" element={ <Login /> } />
+      <Route
+        path="/login"
+        element={ (
+          <RedirectIfAuthenticated>
+            <Login />
+          </RedirectIfAuthenticated>
+        ) }
+      />
       <Route path="/signup" element={ <Signup /> } />
       <Route path="/forgot-password" element={ <ForgotPassword /> } />
       <Route path="/cart" element={ <Cart /> } />
