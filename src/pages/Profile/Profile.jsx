@@ -20,6 +20,7 @@ import {
   IconButton,
   Badge,
   Snackbar,
+  Stack,
 } from '@mui/material';
 import {
   Edit,
@@ -35,6 +36,8 @@ import {
   LocalOffer,
   ContentCopy,
   Lock,
+  AccountBalanceWallet,
+  AddCircle,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/api';
@@ -67,6 +70,11 @@ const Profile = () => {
   const [offers, setOffers] = useState([]);
   const [offersLoading, setOffersLoading] = useState(false);
   const [copiedCode, setCopiedCode] = useState('');
+  const [wallet, setWallet] = useState(null);
+  const [walletTxns, setWalletTxns] = useState([]);
+  const [walletLoading, setWalletLoading] = useState(false);
+  const [topupAmount, setTopupAmount] = useState('');
+  const [topupProcessing, setTopupProcessing] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -80,22 +88,125 @@ const Profile = () => {
     const fetchPlanAndOffers = async () => {
       setPlanLoading(true);
       setOffersLoading(true);
+      setWalletLoading(true);
       try {
-        const [planRes, offersRes] = await Promise.allSettled([
+        const [planRes, offersRes, walletRes, walletTxnRes] = await Promise.allSettled([
           api.get('/api/plans/my'),
           api.get('/api/offers', { params: { target: user?.role } }),
+          api.get('/api/wallet'),
+          api.get('/api/wallet/transactions', { params: { limit: 10 } }),
         ]);
         if (planRes.status === 'fulfilled') setCurrentPlan(planRes.value.data.plan);
         if (offersRes.status === 'fulfilled') setOffers(offersRes.value.data.offers || []);
+        if (walletRes.status === 'fulfilled') setWallet(walletRes.value.data.wallet || null);
+        if (walletTxnRes.status === 'fulfilled') setWalletTxns(walletTxnRes.value.data.transactions || []);
       } catch {
         /* ignore */
       } finally {
         setPlanLoading(false);
         setOffersLoading(false);
+        setWalletLoading(false);
       }
     };
     fetchPlanAndOffers();
   }, [isAuthenticated, user?.role]);
+
+  const refreshWalletData = async () => {
+    try {
+      const [walletRes, walletTxnRes] = await Promise.all([
+        api.get('/api/wallet'),
+        api.get('/api/wallet/transactions', { params: { limit: 10 } }),
+      ]);
+      setWallet(walletRes.data.wallet || null);
+      setWalletTxns(walletTxnRes.data.transactions || []);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const openWalletTopupCheckout = (topup) => {
+    if (!window.Razorpay) {
+      setMessage({ text: 'Payment gateway is loading. Please try again.', severity: 'error' });
+      return;
+    }
+
+    const razorpayPublicKey = import.meta.env.VITE_RAZORPAY_KEY_ID || topup?.razorpayKeyId || '';
+    if (!razorpayPublicKey) {
+      setMessage({ text: 'Razorpay key is not configured.', severity: 'error' });
+      return;
+    }
+
+    const options = {
+      key: razorpayPublicKey,
+      amount: Math.round(Number(topup.amount || 0) * 100),
+      currency: 'INR',
+      name: 'GFuture',
+      description: 'Wallet Top-up',
+      order_id: topup.razorpayOrderId,
+      prefill: {
+        name: topup.customerName || user?.name || '',
+        email: topup.customerEmail || user?.email || '',
+        contact: topup.customerPhone || user?.phone || '',
+      },
+      notes: {
+        walletTopupId: topup.id,
+      },
+      theme: {
+        color: '#03288C',
+      },
+      modal: {
+        ondismiss: () => {
+          setTopupProcessing(false);
+          setMessage({ text: 'Wallet top-up cancelled.', severity: 'info' });
+        },
+      },
+      handler: async (response) => {
+        try {
+          await api.post('/api/wallet/topup/verify', {
+            topupId: topup.id,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+          });
+
+          await refreshWalletData();
+          setTopupAmount('');
+          setMessage({ text: `₹${Number(topup.amount).toFixed(2)} added to wallet`, severity: 'success' });
+        } catch (err) {
+          setMessage({ text: err.response?.data?.message || 'Top-up verification failed', severity: 'error' });
+        } finally {
+          setTopupProcessing(false);
+        }
+      },
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.on('payment.failed', (response) => {
+      setTopupProcessing(false);
+      setMessage({ text: `Payment failed: ${response?.error?.description || 'Please try again.'}`, severity: 'error' });
+    });
+    rzp.open();
+  };
+
+  const handleWalletTopup = async () => {
+    const amount = Number(topupAmount);
+    if (!Number.isFinite(amount) || amount < 1) {
+      setMessage({ text: 'Minimum top-up amount is ₹1', severity: 'error' });
+      return;
+    }
+
+    setTopupProcessing(true);
+    try {
+      const { data } = await api.post('/api/wallet/topup/initiate', { amount });
+      if (!data?.topup?.razorpayOrderId) {
+        throw new Error('Top-up initiation failed');
+      }
+      openWalletTopupCheckout(data.topup);
+    } catch (err) {
+      setTopupProcessing(false);
+      setMessage({ text: err.response?.data?.message || 'Failed to initiate wallet top-up', severity: 'error' });
+    }
+  };
 
   const handleCancelPlan = async () => {
     try {
@@ -262,6 +373,7 @@ const Profile = () => {
                 <Tab label="Personal Info" />
                 <Tab label="My Plan" icon={ <CardMembership sx={ { fontSize: 18 } } /> } iconPosition="start" />
                 <Tab label="Offers" icon={ <LocalOffer sx={ { fontSize: 18 } } /> } iconPosition="start" />
+                <Tab label="Wallet" icon={ <AccountBalanceWallet sx={ { fontSize: 18 } } /> } iconPosition="start" />
                 <Tab label="Security" icon={ <Shield sx={ { fontSize: 18 } } /> } iconPosition="start" />
               </Tabs>
 
@@ -538,6 +650,102 @@ const Profile = () => {
 
               {/* ─── Security Tab ─── */ }
               { tab === 3 && (
+                <Box>
+                  { walletLoading ? (
+                    <Box sx={ { display: 'flex', justifyContent: 'center', py: 4 } }>
+                      <CircularProgress sx={ { color: '#03288C' } } />
+                    </Box>
+                  ) : (
+                    <Stack spacing={ 2 }>
+                      <Card sx={ { borderRadius: 3, p: 2.5, border: '1px solid rgba(3,40,140,0.12)' } }>
+                        <Box sx={ { display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 } }>
+                          <Typography variant="subtitle2" color="text.secondary">Available Balance</Typography>
+                          <Chip label={ `${wallet?.credit_points || 0} pts` } size="small" />
+                        </Box>
+                        <Typography variant="h4" fontWeight={ 800 } sx={ { color: '#03288C' } }>
+                          ₹{ Number(wallet?.balance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 }) }
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          Add money instantly using Razorpay
+                        </Typography>
+                      </Card>
+
+                      <Card sx={ { borderRadius: 3, p: 2.5, border: '1px solid rgba(3,40,140,0.12)' } }>
+                        <Typography variant="subtitle1" fontWeight={ 700 } sx={ { mb: 1.5 } }>Top-up Wallet</Typography>
+                        <Box sx={ { display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 } }>
+                          { [100, 250, 500, 1000].map((amt) => (
+                            <Chip
+                              key={ amt }
+                              label={ `₹${amt}` }
+                              onClick={ () => setTopupAmount(String(amt)) }
+                              variant={ topupAmount === String(amt) ? 'filled' : 'outlined' }
+                              color={ topupAmount === String(amt) ? 'primary' : 'default' }
+                            />
+                          )) }
+                        </Box>
+                        <Box sx={ { display: 'flex', gap: 1.5, alignItems: 'center', flexWrap: 'wrap' } }>
+                          <TextField
+                            size="small"
+                            label="Amount (₹)"
+                            value={ topupAmount }
+                            onChange={ (e) => setTopupAmount(e.target.value) }
+                            sx={ { minWidth: 180 } }
+                          />
+                          <Button
+                            variant="contained"
+                            startIcon={ <AddCircle /> }
+                            onClick={ handleWalletTopup }
+                            disabled={ topupProcessing }
+                            sx={ { bgcolor: '#03288C', '&:hover': { bgcolor: '#021A66' } } }
+                          >
+                            { topupProcessing ? 'Processing...' : 'Add Money' }
+                          </Button>
+                        </Box>
+                      </Card>
+
+                      <Card sx={ { borderRadius: 3, p: 2.5, border: '1px solid rgba(3,40,140,0.12)' } }>
+                        <Typography variant="subtitle1" fontWeight={ 700 } sx={ { mb: 1.5 } }>Recent Wallet Transactions</Typography>
+                        { walletTxns.length === 0 ? (
+                          <Typography variant="body2" color="text.secondary">No wallet transactions yet.</Typography>
+                        ) : (
+                          <Stack spacing={ 1 }>
+                            { walletTxns.map((txn) => (
+                              <Box
+                                key={ txn.id }
+                                sx={ {
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  p: 1.2,
+                                  borderRadius: 2,
+                                  bgcolor: 'rgba(3,40,140,0.03)',
+                                } }
+                              >
+                                <Box>
+                                  <Typography variant="body2" fontWeight={ 600 }>{ txn.description || txn.type }</Typography>
+                                  <Typography variant="caption" color="text.secondary">
+                                    { txn.created_at ? new Date(txn.created_at).toLocaleString('en-IN') : '' }
+                                  </Typography>
+                                </Box>
+                                <Typography
+                                  variant="body2"
+                                  fontWeight={ 700 }
+                                  sx={ { color: Number(txn.amount) >= 0 ? '#16a34a' : '#dc2626' } }
+                                >
+                                  { Number(txn.amount) >= 0 ? '+' : '-' }₹{ Math.abs(Number(txn.amount || 0)).toFixed(2) }
+                                </Typography>
+                              </Box>
+                            )) }
+                          </Stack>
+                        ) }
+                      </Card>
+                    </Stack>
+                  ) }
+                </Box>
+              ) }
+
+              {/* ─── Security Tab ─── */ }
+              { tab === 4 && (
                 <Box>
                   <Card sx={ { p: 3, borderRadius: 3, bgcolor: '#f0f4ff', border: '1px solid rgba(15,43,102,0.1)', mb: 2 } }>
                     <Box sx={ { display: 'flex', alignItems: 'center', gap: 1.5 } }>
