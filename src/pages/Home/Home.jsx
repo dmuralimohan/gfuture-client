@@ -12,7 +12,7 @@ const Home = () => {
     <Box>
       <HeroSection />
 
-      <Container maxWidth="lg" sx={ { mt: 2 } }>
+      <Container maxWidth="lg" sx={ { mt: 2, mb: { xs: 2, md: 3 } } }>
         <Box
           sx={ {
             borderRadius: 3,

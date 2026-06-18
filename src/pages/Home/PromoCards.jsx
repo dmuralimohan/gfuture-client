@@ -18,7 +18,7 @@ const PromoCards = () => {
   }, []);
 
   return (
-    <Container maxWidth="lg" sx={ { mt: { xs: -2, md: -4 }, mb: { xs: 3, md: 6 }, position: 'relative', zIndex: 2 } }>
+    <Container maxWidth="lg" sx={ { mt: { xs: 0, md: 0 }, mb: { xs: 3, md: 6 }, position: 'relative', zIndex: 2 } }>
       <Box
         sx={ {
           display: 'grid',
