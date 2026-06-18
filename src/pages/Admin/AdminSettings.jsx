@@ -242,7 +242,7 @@ const AdminSettings = () => {
                             startIcon={ <Add /> }
                             onClick={ handleAddCustomFee }
                             disabled={ !newFeeLabel.trim() }
-                            sx={ { color: '#ffffff', bgcolor: '#03288C', borderRadius: 2, '&:hover': { bgcolor: '#021A66' } } }
+                            sx={ { color: '#ffffff !important', bgcolor: '#03288C', borderRadius: 2, '&:hover': { bgcolor: '#021A66' } } }
                         >
                             Add Fee
                         </Button>
