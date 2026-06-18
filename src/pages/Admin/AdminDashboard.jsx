@@ -103,6 +103,8 @@ const AdminDashboard = () => {
     { key: 'cancelledOrders', label: 'Cancelled', icon: <Cancel />, color: '#ef4444', value: stats?.cancelledOrders },
     { key: 'totalSubs', label: 'Subscribers', icon: <CardMembership />, color: '#8b5cf6', value: planStats.totalSubs },
     { key: 'activeOffers', label: 'Active Offers', icon: <LocalOffer />, color: '#ec4899', value: offerCount },
+    { key: 'totalReferralJoins', label: 'Referral Joins', icon: <People />, color: '#0f766e', value: stats?.totalReferralJoins },
+    { key: 'totalReferralPayout', label: 'Referral Payout', icon: <AttachMoney />, color: '#16a34a', value: stats?.totalReferralPayout, prefix: '₹' },
   ];
 
   return (

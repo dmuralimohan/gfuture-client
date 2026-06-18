@@ -42,6 +42,7 @@ const Signup = () => {
     phone: '',
     password: '',
     confirmPassword: '',
+    referralCode: '',
     role: 'customer',
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -168,6 +169,7 @@ const Signup = () => {
       phone: form.phone,
       password: form.password,
       role: form.role,
+      referralCode: form.referralCode.trim() || undefined,
     });
     if (result.success) {
       navigate(result.user.role === 'provider' ? '/provider/dashboard' : '/');
@@ -484,6 +486,23 @@ const Signup = () => {
                     startAdornment: (
                       <InputAdornment position="start">
                         <Lock sx={ { color: '#5a6a80' } } />
+                      </InputAdornment>
+                    ),
+                  } }
+                />
+
+                <TextField
+                  fullWidth
+                  label="Referral Code (Optional)"
+                  name="referralCode"
+                  value={ form.referralCode }
+                  onChange={ handleChange }
+                  placeholder="Enter referral code"
+                  sx={ { mb: 3 } }
+                  InputProps={ {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Sms sx={ { color: '#5a6a80' } } />
                       </InputAdornment>
                     ),
                   } }

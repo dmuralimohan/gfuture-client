@@ -20,6 +20,8 @@ import {
   MenuItem,
   CircularProgress,
   Skeleton,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import { Search, Star, AccessTime, ShoppingCart, FilterList } from '@mui/icons-material';
 import { categories as fallbackCategories, services as fallbackServices } from '../../data/mockData';
@@ -42,6 +44,7 @@ const Services = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalResults, setTotalResults] = useState(0);
+  const [cartNotice, setCartNotice] = useState('');
 
   // Fetch categories once
   useEffect(() => {
@@ -96,6 +99,7 @@ const Services = () => {
       return;
     }
     addItem(service);
+    setCartNotice(`${service.name} added to cart`);
   };
 
   return (
@@ -262,14 +266,15 @@ const Services = () => {
                         onClick={ () => navigate(`/services/${service.id}`) }
                         sx={ { position: 'relative' } }
                       >
-                        <CardMedia
-                          component="img"
-                          height="200"
-                          image={ service.image }
-                          alt={ service.name }
-                          loading="lazy"
-                          sx={ { objectFit: 'cover' } }
-                        />
+                        <Box sx={ { height: 220, overflow: 'hidden', background: '#eef2ff' } }>
+                          <CardMedia
+                            component="img"
+                            image={ service.image }
+                            alt={ service.name }
+                            loading="lazy"
+                            sx={ { width: '100%', height: '100%', objectFit: 'cover', display: 'block' } }
+                          />
+                        </Box>
                         <Chip
                           label={ service.category }
                           size="small"
@@ -386,6 +391,26 @@ const Services = () => {
 
       {/* Exclusive offers — visible to signed-in users */ }
       { isAuthenticated && <OffersSection /> }
+
+      <Snackbar
+        open={ !!cartNotice }
+        autoHideDuration={ 2200 }
+        onClose={ () => setCartNotice('') }
+        anchorOrigin={ { vertical: 'bottom', horizontal: 'right' } }
+      >
+        <Alert
+          severity="success"
+          onClose={ () => setCartNotice('') }
+          action={ (
+            <Button color="inherit" size="small" onClick={ () => navigate('/cart') }>
+              View Cart
+            </Button>
+          ) }
+          sx={ { alignItems: 'center' } }
+        >
+          { cartNotice }
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

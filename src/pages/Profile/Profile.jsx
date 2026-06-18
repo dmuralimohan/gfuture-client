@@ -334,6 +334,17 @@ const Profile = () => {
                         } }
                       />
                     ) }
+                    <Chip
+                      icon={ <CheckCircle sx={ { color: '#22c55e !important', fontSize: 16 } } /> }
+                      label={ user?.is_email_verified ? 'Email Verified' : 'Email Not Verified' }
+                      size="small"
+                      sx={ {
+                        bgcolor: user?.is_email_verified ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)',
+                        color: '#fff',
+                        fontWeight: 700,
+                        fontSize: '0.7rem',
+                      } }
+                    />
                   </Box>
                 </Box>
 
@@ -420,6 +431,22 @@ const Profile = () => {
                       label="Role"
                       value={ user?.role }
                       disabled
+                      sx={ { '& .MuiOutlinedInput-root': { borderRadius: 2 } } }
+                    />
+                  </Grid>
+                  <Grid size={ { xs: 12, sm: 6 } }>
+                    <TextField
+                      fullWidth
+                      label="My Referral Code"
+                      value={ user?.referral_code || '' }
+                      disabled
+                      InputProps={ {
+                        endAdornment: user?.referral_code ? (
+                          <IconButton size="small" onClick={ () => handleCopyCode(user.referral_code) }>
+                            <ContentCopy fontSize="small" />
+                          </IconButton>
+                        ) : null,
+                      } }
                       sx={ { '& .MuiOutlinedInput-root': { borderRadius: 2 } } }
                     />
                   </Grid>

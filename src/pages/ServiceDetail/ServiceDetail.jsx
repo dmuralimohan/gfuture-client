@@ -16,6 +16,8 @@ import {
   Breadcrumbs,
   Link as MuiLink,
   Skeleton,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   ShoppingCart,
@@ -39,6 +41,7 @@ const ServiceDetail = () => {
   const [service, setService] = useState(null);
   const [relatedServices, setRelatedServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [cartNotice, setCartNotice] = useState('');
 
   useEffect(() => {
     const fetchService = async () => {
@@ -131,9 +134,11 @@ const ServiceDetail = () => {
   const handleAddToCart = () => {
     if (!isAuthenticated) {
       navigate('/login');
-      return;
+      return false;
     }
     addItem(service);
+    setCartNotice(`${service.name} added to cart`);
+    return true;
   };
 
   return (
@@ -301,8 +306,9 @@ const ServiceDetail = () => {
                     variant="outlined"
                     size="large"
                     onClick={ () => {
-                      handleAddToCart();
-                      if (isAuthenticated) navigate('/cart');
+                      if (handleAddToCart()) {
+                        navigate('/cart');
+                      }
                     } }
                     sx={ {
                       borderColor: '#03288C',
@@ -380,6 +386,17 @@ const ServiceDetail = () => {
           </Box>
         ) }
       </Container>
+
+      <Snackbar
+        open={ !!cartNotice }
+        autoHideDuration={ 2200 }
+        onClose={ () => setCartNotice('') }
+        anchorOrigin={ { vertical: 'bottom', horizontal: 'right' } }
+      >
+        <Alert severity="success" onClose={ () => setCartNotice('') }>
+          { cartNotice }
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
