@@ -26,11 +26,11 @@ const Plans = () => {
     fetchPlans();
   }, []);
 
-  const handlePlanClick = () => {
+  const handlePlanClick = (planId) => {
     if (!isAuthenticated) {
       navigate('/login');
     } else {
-      navigate('/pricing');
+      navigate(`/pricing?plan=${planId}`);
     }
   };
 
@@ -173,7 +173,7 @@ const Plans = () => {
                   <Button
                     fullWidth
                     variant={ Boolean(plan.recommended) ? 'contained' : 'outlined' }
-                    onClick={ handlePlanClick }
+                    onClick={ () => handlePlanClick(plan.id) }
                     sx={ {
                       mt: 'auto',
                       borderRadius: '6px',

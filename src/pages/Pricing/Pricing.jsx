@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Box, Container, Typography, Card, CardContent, Button, Chip, Divider, CircularProgress, Alert, Snackbar, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { motion } from 'framer-motion';
 import { CheckCircle, Star, SwapHoriz } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/api';
 
@@ -33,6 +33,7 @@ const ensureRazorpayLoaded = async () => {
 
 const Pricing = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { isAuthenticated, user } = useAuth();
   const [plans, setPlans] = useState([]);
   const [currentPlan, setCurrentPlan] = useState(null);
@@ -66,6 +67,24 @@ const Pricing = () => {
     fetchData();
   }, [isAuthenticated]);
 
+  useEffect(() => {
+    if (!isAuthenticated || loading) return;
+
+    const selectedPlanId = Number(searchParams.get('plan'));
+    if (!selectedPlanId || !plans.length) return;
+
+    const selectedPlan = plans.find((p) => Number(p.id) === selectedPlanId);
+    if (!selectedPlan || currentPlan?.id === selectedPlan.id) {
+      searchParams.delete('plan');
+      setSearchParams(searchParams, { replace: true });
+      return;
+    }
+
+    setConfirmDialog({ open: true, plan: selectedPlan });
+    searchParams.delete('plan');
+    setSearchParams(searchParams, { replace: true });
+  }, [isAuthenticated, loading, plans, currentPlan, searchParams, setSearchParams]);
+
   const handleSelect = (plan) => {
     if (!isAuthenticated) {
       navigate('/login');
@@ -92,6 +111,10 @@ const Pricing = () => {
       const { data: initData } = await api.post('/api/plans/subscribe/initiate', { plan_id: plan.id });
       if (!initData?.requiresPayment || !initData?.payment?.id || !initData?.payment?.razorpayOrderId) {
         throw new Error('Failed to initialize payment');
+      }
+
+      if (!initData?.payment?.razorpayKeyId) {
+        throw new Error('Razorpay key is not configured on server. Please contact support.');
       }
 
       const isLoaded = await ensureRazorpayLoaded();
