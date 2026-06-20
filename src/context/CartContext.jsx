@@ -19,6 +19,7 @@ export const CartProvider = ({ children }) => {
     extra_fee_label: '',
     extra_fee_amount: 0,
   });
+  const [cartNotice, setCartNotice] = useState('');
 
   // Fetch platform settings
   useEffect(() => {
@@ -54,6 +55,7 @@ export const CartProvider = ({ children }) => {
         updated = [...prev, { ...service, quantity: 1 }];
       }
       saveToStorage(updated);
+      setCartNotice(`${service.name} added to cart`);
       return updated;
     });
   }, []);
@@ -116,6 +118,8 @@ export const CartProvider = ({ children }) => {
         extraFeeAmount,
         total,
         feeSettings,
+        cartNotice,
+        clearCartNotice: () => setCartNotice(''),
       } }
     >
       { children }

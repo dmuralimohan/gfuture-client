@@ -19,6 +19,8 @@ import {
   Menu,
   MenuItem,
   Divider,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -51,7 +53,7 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuth();
-  const { totalItems } = useCart();
+  const { totalItems, cartNotice, clearCartNotice } = useCart();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -69,42 +71,42 @@ const Header = () => {
     <>
       <AppBar
         position="sticky"
-        elevation={0}
-        sx={{
+        elevation={ 0 }
+        sx={ {
           background: 'rgba(255,255,255,0.92)',
           backdropFilter: 'blur(20px)',
           borderBottom: '1px solid rgba(15,43,102,0.08)',
-        }}
+        } }
       >
-        <Toolbar sx={{ maxWidth: 1280, width: '100%', mx: 'auto', px: { xs: 2, md: 3 } }}>
-          {/* Logo */}
+        <Toolbar sx={ { maxWidth: 1280, width: '100%', mx: 'auto', px: { xs: 2, md: 3 } } }>
+          {/* Logo */ }
           <Box
-            component={Link}
+            component={ Link }
             to="/"
-            sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none', mr: 4 }}
+            sx={ { display: 'flex', alignItems: 'center', textDecoration: 'none', mr: 4 } }
           >
             <Box
               component="img"
               src="/logo-header.png"
               alt="G-Future"
-              sx={{
+              sx={ {
                 height: { xs: 36, md: 44 },
                 width: 'auto',
-              }}
+              } }
             />
           </Box>
 
-          {/* Desktop Nav */}
-          {!isMobile && (
-            <Box sx={{ display: 'flex', gap: 0.5, flex: 1 }}>
-              {navLinks.map((link) => {
+          {/* Desktop Nav */ }
+          { !isMobile && (
+            <Box sx={ { display: 'flex', gap: 0.5, flex: 1 } }>
+              { navLinks.map((link) => {
                 const isActive = location.pathname === link.path;
                 return (
                   <Button
-                    key={link.path}
-                    component={Link}
-                    to={link.path}
-                    sx={{
+                    key={ link.path }
+                    component={ Link }
+                    to={ link.path }
+                    sx={ {
                       color: isActive ? '#03288C' : '#5a6a80',
                       fontWeight: isActive ? 700 : 500,
                       fontSize: '0.8rem',
@@ -114,165 +116,185 @@ const Header = () => {
                       px: 2,
                       '&::after': isActive
                         ? {
-                            content: '""',
-                            position: 'absolute',
-                            bottom: 6,
-                            left: '20%',
-                            width: '60%',
-                            height: 2,
-                            bgcolor: '#03288C',
-                            borderRadius: 1,
-                          }
+                          content: '""',
+                          position: 'absolute',
+                          bottom: 6,
+                          left: '20%',
+                          width: '60%',
+                          height: 2,
+                          bgcolor: '#03288C',
+                          borderRadius: 1,
+                        }
                         : {},
                       '&:hover': { color: '#1a56c4', background: 'transparent' },
-                    }}
+                    } }
                   >
-                    {link.label}
+                    { link.label }
                   </Button>
                 );
-              })}
+              }) }
             </Box>
-          )}
+          ) }
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
-            {/* Cart */}
-            <IconButton onClick={() => navigate('/cart')} sx={{ color: '#03288C' }}>
-              <Badge badgeContent={totalItems} color="primary">
+          <Box sx={ { display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' } }>
+            {/* Cart */ }
+            <IconButton onClick={ () => navigate('/cart') } sx={ { color: '#03288C' } }>
+              <Badge badgeContent={ totalItems } color="primary">
                 <ShoppingCart />
               </Badge>
             </IconButton>
 
-            {isAuthenticated ? (
+            { isAuthenticated ? (
               <>
-                <IconButton onClick={handleProfileMenu}>
+                <IconButton onClick={ handleProfileMenu }>
                   <Avatar
-                    sx={{
+                    sx={ {
                       width: 36,
                       height: 36,
                       bgcolor: '#03288C',
                       fontSize: 14,
                       fontWeight: 700,
-                    }}
+                    } }
                   >
-                    {user?.name?.[0]?.toUpperCase() || 'U'}
+                    { user?.name?.[0]?.toUpperCase() || 'U' }
                   </Avatar>
                 </IconButton>
                 <Menu
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
-                  onClose={handleCloseMenu}
-                  PaperProps={{
+                  anchorEl={ anchorEl }
+                  open={ Boolean(anchorEl) }
+                  onClose={ handleCloseMenu }
+                  PaperProps={ {
                     sx: { mt: 1.5, borderRadius: 3, minWidth: 200, boxShadow: '0 8px 40px rgba(0,0,0,0.12)' },
-                  }}
+                  } }
                 >
-                  <Box sx={{ px: 2, py: 1.5 }}>
-                    <Typography variant="subtitle2" fontWeight={700}>{user?.name}</Typography>
-                    <Typography variant="caption" color="text.secondary">{user?.email}</Typography>
+                  <Box sx={ { px: 2, py: 1.5 } }>
+                    <Typography variant="subtitle2" fontWeight={ 700 }>{ user?.name }</Typography>
+                    <Typography variant="caption" color="text.secondary">{ user?.email }</Typography>
                   </Box>
                   <Divider />
-                  <MenuItem onClick={() => { handleCloseMenu(); navigate('/profile'); }}>
+                  <MenuItem onClick={ () => { handleCloseMenu(); navigate('/profile'); } }>
                     <ListItemIcon><Person fontSize="small" /></ListItemIcon>
                     Profile
                   </MenuItem>
-                  {user?.role === 'provider' && (
-                    <MenuItem onClick={() => { handleCloseMenu(); navigate('/provider/dashboard'); }}>
+                  { user?.role === 'provider' && (
+                    <MenuItem onClick={ () => { handleCloseMenu(); navigate('/provider/dashboard'); } }>
                       <ListItemIcon><Settings fontSize="small" /></ListItemIcon>
                       Provider Dashboard
                     </MenuItem>
-                  )}
-                  {user?.role === 'admin' && (
-                    <MenuItem onClick={() => { handleCloseMenu(); navigate('/admin'); }}>
+                  ) }
+                  { user?.role === 'admin' && (
+                    <MenuItem onClick={ () => { handleCloseMenu(); navigate('/admin'); } }>
                       <ListItemIcon><AdminPanelSettings fontSize="small" /></ListItemIcon>
                       Admin Panel
                     </MenuItem>
-                  )}
-                  <MenuItem onClick={() => { handleCloseMenu(); navigate('/orders'); }}>
+                  ) }
+                  <MenuItem onClick={ () => { handleCloseMenu(); navigate('/orders'); } }>
                     <ListItemIcon><Store fontSize="small" /></ListItemIcon>
                     My Orders
                   </MenuItem>
                   <Divider />
-                  <MenuItem onClick={handleLogout}>
+                  <MenuItem onClick={ handleLogout }>
                     <ListItemIcon><Logout fontSize="small" /></ListItemIcon>
                     Logout
                   </MenuItem>
                 </Menu>
               </>
             ) : (
-              <Box sx={{ display: 'flex', gap: 1 }}>
+              <Box sx={ { display: 'flex', gap: 1 } }>
                 <Button
-                  onClick={() => navigate('/login')}
-                  sx={{
+                  onClick={ () => navigate('/login') }
+                  sx={ {
                     color: '#03288C',
                     fontWeight: 600,
                     fontSize: '0.85rem',
                     '&:hover': { background: 'transparent', color: '#1a56c4' },
-                  }}
+                  } }
                 >
                   Log in
                 </Button>
                 <Button
                   variant="contained"
-                  onClick={() => navigate('/signup')}
-                  sx={{
+                  onClick={ () => navigate('/signup') }
+                  sx={ {
                     bgcolor: '#03288C',
                     borderRadius: '6px',
                     px: 3,
                     fontSize: '0.85rem',
                     '&:hover': { bgcolor: '#021A66' },
-                  }}
+                  } }
                 >
                   Join Platform
                 </Button>
               </Box>
-            )}
+            ) }
 
-            {isMobile && (
-              <IconButton onClick={() => setDrawerOpen(true)} sx={{ color: '#03288C' }}>
+            { isMobile && (
+              <IconButton onClick={ () => setDrawerOpen(true) } sx={ { color: '#03288C' } }>
                 <MenuIcon />
               </IconButton>
-            )}
+            ) }
           </Box>
         </Toolbar>
       </AppBar>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Drawer */ }
       <Drawer
         anchor="right"
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        PaperProps={{ sx: { width: 280, borderRadius: '12px 0 0 12px' } }}
+        open={ drawerOpen }
+        onClose={ () => setDrawerOpen(false) }
+        PaperProps={ { sx: { width: 280, borderRadius: '12px 0 0 12px' } } }
       >
-        <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box sx={ { p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' } }>
           <Box
             component="img"
             src="/logo-header.png"
             alt="G-Future"
-            sx={{ height: 32, width: 'auto' }}
+            sx={ { height: 32, width: 'auto' } }
           />
-          <IconButton onClick={() => setDrawerOpen(false)}><Close /></IconButton>
+          <IconButton onClick={ () => setDrawerOpen(false) }><Close /></IconButton>
         </Box>
         <Divider />
         <List>
-          {navLinks.map((link) => (
+          { navLinks.map((link) => (
             <ListItem
-              key={link.path}
-              component={Link}
-              to={link.path}
-              onClick={() => setDrawerOpen(false)}
-              sx={{
+              key={ link.path }
+              component={ Link }
+              to={ link.path }
+              onClick={ () => setDrawerOpen(false) }
+              sx={ {
                 borderRadius: 2,
                 mx: 1,
                 mb: 0.5,
                 color: location.pathname === link.path ? '#03288C' : '#5a6a80',
                 bgcolor: location.pathname === link.path ? 'rgba(15,43,102,0.06)' : 'transparent',
-              }}
+              } }
             >
-              <ListItemIcon sx={{ color: 'inherit', minWidth: 40 }}>{link.icon}</ListItemIcon>
-              <ListItemText primary={link.label} primaryTypographyProps={{ fontWeight: 600 }} />
+              <ListItemIcon sx={ { color: 'inherit', minWidth: 40 } }>{ link.icon }</ListItemIcon>
+              <ListItemText primary={ link.label } primaryTypographyProps={ { fontWeight: 600 } } />
             </ListItem>
-          ))}
+          )) }
         </List>
       </Drawer>
+
+      <Snackbar
+        open={ Boolean(cartNotice) }
+        autoHideDuration={ 2200 }
+        onClose={ clearCartNotice }
+        anchorOrigin={ { vertical: 'top', horizontal: 'center' } }
+      >
+        <Alert
+          severity="success"
+          onClose={ clearCartNotice }
+          sx={ { alignItems: 'center', mt: 1.5 } }
+          action={
+            <Button color="inherit" size="small" onClick={ () => { clearCartNotice(); navigate('/cart'); } }>
+              View Cart
+            </Button>
+          }
+        >
+          { cartNotice }
+        </Alert>
+      </Snackbar>
     </>
   );
 };

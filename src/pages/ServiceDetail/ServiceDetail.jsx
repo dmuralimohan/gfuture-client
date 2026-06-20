@@ -16,8 +16,6 @@ import {
   Breadcrumbs,
   Link as MuiLink,
   Skeleton,
-  Snackbar,
-  Alert,
 } from '@mui/material';
 import {
   ShoppingCart,
@@ -41,7 +39,6 @@ const ServiceDetail = () => {
   const [service, setService] = useState(null);
   const [relatedServices, setRelatedServices] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [cartNotice, setCartNotice] = useState('');
 
   useEffect(() => {
     const fetchService = async () => {
@@ -137,7 +134,6 @@ const ServiceDetail = () => {
       return false;
     }
     addItem(service);
-    setCartNotice(`${service.name} added to cart`);
     return true;
   };
 

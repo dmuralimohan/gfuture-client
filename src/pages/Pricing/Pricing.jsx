@@ -6,6 +6,31 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/api';
 
+const ensureRazorpayLoaded = async () => {
+  if (window.Razorpay) return true;
+
+  const scriptExists = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
+  if (scriptExists) {
+    await new Promise((resolve) => {
+      scriptExists.addEventListener('load', resolve, { once: true });
+      scriptExists.addEventListener('error', resolve, { once: true });
+    });
+    return Boolean(window.Razorpay);
+  }
+
+  const script = document.createElement('script');
+  script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+  script.async = true;
+
+  const loaded = await new Promise((resolve) => {
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+
+  return loaded && Boolean(window.Razorpay);
+};
+
 const Pricing = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
@@ -54,12 +79,73 @@ const Pricing = () => {
     const plan = confirmDialog.plan;
     setConfirmDialog({ open: false, plan: null });
     setSubscribing(true);
+
     try {
-      await api.post('/api/plans/subscribe', { plan_id: plan.id });
-      setCurrentPlan(plan);
+      const price = Number(plan?.price || 0);
+      if (price <= 0) {
+        await api.post('/api/plans/subscribe', { plan_id: plan.id });
+        setCurrentPlan(plan);
+        setSnackbar({ open: true, message: `Successfully subscribed to ${plan.name}!`, severity: 'success' });
+        return;
+      }
+
+      const { data: initData } = await api.post('/api/plans/subscribe/initiate', { plan_id: plan.id });
+      if (!initData?.requiresPayment || !initData?.payment?.id || !initData?.payment?.razorpayOrderId) {
+        throw new Error('Failed to initialize payment');
+      }
+
+      const isLoaded = await ensureRazorpayLoaded();
+      if (!isLoaded) {
+        throw new Error('Razorpay SDK failed to load');
+      }
+
+      const paymentResponse = await new Promise((resolve, reject) => {
+        const rz = new window.Razorpay({
+          key: initData.payment.razorpayKeyId,
+          amount: Math.round(Number(initData.payment.amount || 0) * 100),
+          currency: 'INR',
+          name: 'GFuture',
+          description: `${plan.name} Membership`,
+          order_id: initData.payment.razorpayOrderId,
+          prefill: {
+            name: initData.payment.customerName || user?.name || '',
+            email: initData.payment.customerEmail || user?.email || '',
+            contact: initData.payment.customerPhone || user?.phone || '',
+          },
+          notes: {
+            membership_plan_id: String(plan.id),
+          },
+          theme: {
+            color: '#03288C',
+          },
+          handler: resolve,
+          modal: {
+            ondismiss: () => reject(new Error('Payment cancelled by user')),
+          },
+        });
+
+        rz.on('payment.failed', (resp) => {
+          reject(new Error(resp?.error?.description || 'Payment failed'));
+        });
+
+        rz.open();
+      });
+
+      const { data: verifyData } = await api.post('/api/plans/subscribe/verify', {
+        paymentId: initData.payment.id,
+        razorpay_order_id: paymentResponse.razorpay_order_id,
+        razorpay_payment_id: paymentResponse.razorpay_payment_id,
+        razorpay_signature: paymentResponse.razorpay_signature,
+      });
+
+      setCurrentPlan(verifyData?.subscription || plan);
       setSnackbar({ open: true, message: `Successfully subscribed to ${plan.name}!`, severity: 'success' });
     } catch (err) {
-      setSnackbar({ open: true, message: err.response?.data?.message || 'Subscription failed', severity: 'error' });
+      setSnackbar({
+        open: true,
+        message: err?.response?.data?.message || err?.message || 'Subscription failed',
+        severity: 'error',
+      });
     } finally {
       setSubscribing(false);
     }
@@ -267,7 +353,7 @@ const Pricing = () => {
         <DialogActions sx={ { p: 2.5 } }>
           <Button onClick={ () => setConfirmDialog({ open: false, plan: null }) }>Cancel</Button>
           <Button variant="contained" onClick={ handleSubscribe } sx={ { bgcolor: '#03288C', '&:hover': { bgcolor: '#021A66' } } }>
-            { currentPlan ? 'Switch' : 'Subscribe' }
+            { Number(confirmDialog.plan?.price || 0) > 0 ? 'Pay & Subscribe' : (currentPlan ? 'Switch' : 'Subscribe') }
           </Button>
         </DialogActions>
       </Dialog>
