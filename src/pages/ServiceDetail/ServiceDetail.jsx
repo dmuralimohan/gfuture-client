@@ -25,6 +25,7 @@ import {
   Star,
   ArrowBack,
   Shield,
+  LocationOn,
 } from '@mui/icons-material';
 import { services as fallbackServices } from '../../data/mockData';
 import api from '../../utils/api';
@@ -39,6 +40,7 @@ const ServiceDetail = () => {
   const [service, setService] = useState(null);
   const [relatedServices, setRelatedServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState('');
 
   useEffect(() => {
     const fetchService = async () => {
@@ -60,6 +62,8 @@ const ServiceDetail = () => {
           },
         };
         setService(normalized);
+        const gallery = [normalized.image, ...(Array.isArray(normalized.image_links) ? normalized.image_links : [])].filter(Boolean);
+        setSelectedImage(gallery[0] || '');
 
         // Fetch related services in the same category
         try {
@@ -82,6 +86,10 @@ const ServiceDetail = () => {
         // Fallback to mock data
         const mock = fallbackServices.find((s) => s.id === Number(id));
         setService(mock || null);
+        if (mock) {
+          const gallery = [mock.image, ...(Array.isArray(mock.image_links) ? mock.image_links : [])].filter(Boolean);
+          setSelectedImage(gallery[0] || '');
+        }
         if (mock) {
           setRelatedServices(
             fallbackServices
@@ -137,6 +145,8 @@ const ServiceDetail = () => {
     return true;
   };
 
+  const galleryImages = [service.image, ...(Array.isArray(service.image_links) ? service.image_links : [])].filter(Boolean);
+
   return (
     <Box sx={ { py: 4, minHeight: '80vh' } }>
       <Container maxWidth="lg">
@@ -178,11 +188,33 @@ const ServiceDetail = () => {
               <Card sx={ { borderRadius: 4, overflow: 'hidden', mb: 3 } }>
                 <Box
                   component="img"
-                  src={ service.image }
+                  src={ selectedImage || service.image }
                   alt={ service.name }
                   sx={ { width: '100%', height: { xs: 250, md: 400 }, objectFit: 'cover' } }
                 />
               </Card>
+
+              { galleryImages.length > 1 && (
+                <Box sx={ { display: 'flex', gap: 1, flexWrap: 'wrap', mb: 3 } }>
+                  { galleryImages.map((img) => (
+                    <Box
+                      key={ img }
+                      component="img"
+                      src={ img }
+                      alt="service"
+                      onClick={ () => setSelectedImage(img) }
+                      sx={ {
+                        width: 72,
+                        height: 72,
+                        borderRadius: 2,
+                        objectFit: 'cover',
+                        cursor: 'pointer',
+                        border: selectedImage === img ? '2px solid #03288C' : '1px solid rgba(0,0,0,0.1)',
+                      } }
+                    />
+                  )) }
+                </Box>
+              ) }
 
               <Typography variant="h4" fontWeight={ 800 } sx={ { mb: 1 } }>
                 { service.name }
@@ -219,6 +251,14 @@ const ServiceDetail = () => {
                     { service.duration }
                   </Typography>
                 </Box>
+                { service.location && (
+                  <Box sx={ { display: 'flex', alignItems: 'center', gap: 0.5 } }>
+                    <LocationOn sx={ { fontSize: 18, color: '#5a6a80' } } />
+                    <Typography variant="body2" color="text.secondary">
+                      { service.location }
+                    </Typography>
+                  </Box>
+                ) }
               </Box>
 
               <Typography variant="body1" sx={ { lineHeight: 1.8, mb: 4, color: '#5a6a80' } }>

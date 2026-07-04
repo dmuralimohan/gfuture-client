@@ -98,6 +98,12 @@ const Services = () => {
     addItem(service);
   };
 
+  const getPrimaryImage = (service) => {
+    if (service.image) return service.image;
+    if (Array.isArray(service.image_links) && service.image_links.length > 0) return service.image_links[0];
+    return '/placeholder-service.jpg';
+  };
+
   return (
     <Box sx={ { py: 4, minHeight: '80vh' } }>
       <Container maxWidth="lg">
@@ -265,7 +271,7 @@ const Services = () => {
                         <Box sx={ { height: 220, overflow: 'hidden', background: '#eef2ff' } }>
                           <CardMedia
                             component="img"
-                            image={ service.image }
+                            image={ getPrimaryImage(service) }
                             alt={ service.name }
                             loading="lazy"
                             sx={ { width: '100%', height: '100%', objectFit: 'cover', display: 'block' } }
@@ -316,6 +322,12 @@ const Services = () => {
                             { service.duration }
                           </Typography>
                         </Box>
+
+                        { service.location && (
+                          <Typography variant="caption" color="text.secondary" sx={ { display: 'block', mb: 1.25 } }>
+                            Location: { service.location }
+                          </Typography>
+                        ) }
 
                         <Typography
                           variant="body2"

@@ -41,7 +41,7 @@ const AdminServices = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState(null);
   const [formData, setFormData] = useState({
-    name: '', category_id: '', provider_id: '', price: '', description: '', duration: '', warranty: '', image: '', includes: '', active: 1, type: 'service', size_value: '', size_unit: '',
+    name: '', category_id: '', provider_id: '', price: '', description: '', duration: '', warranty: '', image: '', image_links: '', includes: '', location: '', active: 1, type: 'service', size_value: '', size_unit: '',
   });
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [deleteDialog, setDeleteDialog] = useState({ open: false, service: null });
@@ -89,7 +89,9 @@ const AdminServices = () => {
         duration: service.duration || '',
         warranty: service.warranty || '',
         image: service.image || '',
+        image_links: Array.isArray(service.image_links) ? service.image_links.join(', ') : service.image_links || '',
         includes: Array.isArray(service.includes) ? service.includes.join(', ') : service.includes || '',
+        location: service.location || '',
         active: service.active,
         type: service.type || 'service',
         size_value: service.size_value || '',
@@ -97,7 +99,7 @@ const AdminServices = () => {
       });
     } else {
       setEditingService(null);
-      setFormData({ name: '', category_id: '', provider_id: '', price: '', description: '', duration: '', warranty: '', image: '', includes: '', active: 1, type: 'service', size_value: '', size_unit: '' });
+      setFormData({ name: '', category_id: '', provider_id: '', price: '', description: '', duration: '', warranty: '', image: '', image_links: '', includes: '', location: '', active: 1, type: 'service', size_value: '', size_unit: '' });
     }
     setDialogOpen(true);
   };
@@ -107,6 +109,8 @@ const AdminServices = () => {
       const payload = {
         ...formData,
         price: Number(formData.price),
+        location: formData.location?.trim() || null,
+        image_links: formData.image_links ? formData.image_links.split(',').map((s) => s.trim()).filter(Boolean) : [],
         includes: formData.includes ? formData.includes.split(',').map((s) => s.trim()).filter(Boolean) : [],
         size_value: formData.type === 'product' ? formData.size_value || null : null,
         size_unit: formData.type === 'product' ? formData.size_unit || null : null,
@@ -172,6 +176,7 @@ const AdminServices = () => {
                   <TableCell sx={ { fontWeight: 700 } }>Name</TableCell>
                   <TableCell sx={ { fontWeight: 700 } }>Category</TableCell>
                   <TableCell sx={ { fontWeight: 700 } }>Type</TableCell>
+                  <TableCell sx={ { fontWeight: 700 } }>Location</TableCell>
                   <TableCell sx={ { fontWeight: 700 } }>Provider</TableCell>
                   <TableCell sx={ { fontWeight: 700 } }>Price</TableCell>
                   <TableCell sx={ { fontWeight: 700 } }>Rating</TableCell>
@@ -207,6 +212,9 @@ const AdminServices = () => {
                       ) }
                     </TableCell>
                     <TableCell>
+                      <Typography variant="body2" color="text.secondary">{ svc.location || '—' }</Typography>
+                    </TableCell>
+                    <TableCell>
                       <Typography variant="body2" color="text.secondary">{ svc.provider_name || 'Unassigned' }</Typography>
                     </TableCell>
                     <TableCell>
@@ -239,7 +247,7 @@ const AdminServices = () => {
                 )) }
                 { services.length === 0 && !loading && (
                   <TableRow>
-                    <TableCell colSpan={ 9 } align="center" sx={ { py: 6 } }>
+                    <TableCell colSpan={ 10 } align="center" sx={ { py: 6 } }>
                       <Typography color="text.secondary">No services found</Typography>
                     </TableCell>
                   </TableRow>
@@ -296,10 +304,25 @@ const AdminServices = () => {
               )) }
             </TextField>
             <TextField label="Price (₹)" type="number" fullWidth value={ formData.price } onChange={ (e) => setFormData({ ...formData, price: e.target.value }) } />
+            <TextField
+              label="Location"
+              fullWidth
+              required={ formData.type === 'product' }
+              helperText={ formData.type === 'product' ? 'Required for products. Existing products default to Kadalur.' : 'Optional for services' }
+              value={ formData.location }
+              onChange={ (e) => setFormData({ ...formData, location: e.target.value }) }
+            />
             <TextField label="Description" fullWidth multiline rows={ 3 } value={ formData.description } onChange={ (e) => setFormData({ ...formData, description: e.target.value }) } />
             <TextField label="Duration" fullWidth value={ formData.duration } placeholder="e.g. 45-60 mins" onChange={ (e) => setFormData({ ...formData, duration: e.target.value }) } />
             <TextField label="Warranty" fullWidth value={ formData.warranty } placeholder="e.g. 30 days" onChange={ (e) => setFormData({ ...formData, warranty: e.target.value }) } />
             <TextField label="Image URL" fullWidth value={ formData.image } onChange={ (e) => setFormData({ ...formData, image: e.target.value }) } />
+            <TextField
+              label="Additional Image Links (comma separated URLs)"
+              fullWidth
+              value={ formData.image_links }
+              placeholder="https://..., https://..."
+              onChange={ (e) => setFormData({ ...formData, image_links: e.target.value }) }
+            />
             <TextField label="Includes (comma separated)" fullWidth value={ formData.includes } placeholder="e.g. Diagnosis, Repair, Testing" onChange={ (e) => setFormData({ ...formData, includes: e.target.value }) } />
             { editingService && (
               <FormControlLabel

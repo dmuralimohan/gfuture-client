@@ -9,6 +9,7 @@ import {
     IconButton,
     Tooltip,
     Container,
+    CardMedia,
 } from '@mui/material';
 import { ContentCopy, LocalOffer, ArrowForward, CheckCircle } from '@mui/icons-material';
 import { motion } from 'framer-motion';
@@ -143,6 +144,20 @@ const OffersSection = () => {
                             </Box>
 
                             <CardContent sx={ { p: 2.5 } }>
+                                { offer.image && (
+                                    <CardMedia
+                                        component="img"
+                                        image={ offer.image }
+                                        alt={ offer.title }
+                                        sx={ {
+                                            width: '100%',
+                                            height: 120,
+                                            objectFit: 'cover',
+                                            borderRadius: 2,
+                                            mb: 2,
+                                        } }
+                                    />
+                                ) }
                                 <Typography variant="body2" color="text.secondary" sx={ { mb: 2, minHeight: 40 } }>
                                     { offer.description }
                                 </Typography>
