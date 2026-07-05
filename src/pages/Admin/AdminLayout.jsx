@@ -175,7 +175,7 @@ const AdminLayout = () => {
       ) }
 
       {/* Main Content */ }
-      <Box sx={ { flex: 1, display: 'flex', flexDirection: 'column', ml: { md: `${DRAWER_WIDTH}px` } } }>
+      <Box sx={ { flex: 1, display: 'flex', flexDirection: 'column', ml: { md: `${DRAWER_WIDTH}px` }, minWidth: 0, overflow: 'hidden' } }>
         <AppBar
           position="sticky"
           elevation={ 0 }
@@ -200,7 +200,7 @@ const AdminLayout = () => {
           </Toolbar>
         </AppBar>
 
-        <Box sx={ { flex: 1, p: { xs: 2, md: 3 }, maxWidth: 1400, width: '100%', mx: 'auto' } }>
+        <Box sx={ { flex: 1, p: { xs: 2, md: 3 }, maxWidth: 1400, width: '100%', mx: 'auto', minWidth: 0, overflow: 'hidden' } }>
           <Outlet />
         </Box>
       </Box>

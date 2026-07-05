@@ -122,12 +122,12 @@ const AdminUsers = ({ roleFilter }) => {
   };
 
   return (
-    <Box>
+    <Box sx={ { minWidth: 0 } }>
       <Box sx={ { display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 } }>
-        <Typography variant="h5" fontWeight={ 800 } color="#0E0E2E">
+        <Typography variant="h5" fontWeight={ 800 } color="#0E0E2E" sx={ { whiteSpace: 'nowrap' } }>
           { title }
         </Typography>
-        <Box sx={ { display: 'flex', gap: 2, alignItems: 'center' } }>
+        <Box sx={ { display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' } }>
           <TextField
             placeholder="Search users..."
             size="small"
@@ -136,13 +136,13 @@ const AdminUsers = ({ roleFilter }) => {
             InputProps={ {
               startAdornment: <InputAdornment position="start"><Search /></InputAdornment>,
             } }
-            sx={ { minWidth: 250, '& .MuiOutlinedInput-root': { borderRadius: 2 } } }
+            sx={ { width: { xs: '100%', sm: 240 }, '& .MuiOutlinedInput-root': { borderRadius: 2 } } }
           />
           <Button
             variant="contained"
             startIcon={ <Add /> }
             onClick={ () => handleOpenDialog() }
-            sx={ { bgcolor: '#03288C', borderRadius: 2, '&:hover': { bgcolor: '#021A66' } } }
+            sx={ { bgcolor: '#03288C', borderRadius: 2, whiteSpace: 'nowrap', '&:hover': { bgcolor: '#021A66' } } }
           >
             Add User
           </Button>
