@@ -2,9 +2,11 @@ import { Box, Container, Typography, Button, Chip } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle } from '@mui/icons-material';
+import { useAuth } from '../../context/AuthContext';
 
 const HeroSection = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
   return (
     <Box
@@ -168,7 +170,7 @@ const HeroSection = () => {
                 <Button
                   variant="outlined"
                   size="large"
-                  onClick={ () => navigate('/signup') }
+                  onClick={ () => navigate(isAuthenticated ? '/profile' : '/signup') }
                   sx={ {
                     borderColor: '#03288C',
                     color: '#03288C',
