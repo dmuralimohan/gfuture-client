@@ -43,6 +43,7 @@ const ServiceDetail = () => {
   const [relatedServices, setRelatedServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState('');
+  const [cartNotice, setCartNotice] = useState('');
 
   useEffect(() => {
     const fetchService = async () => {
@@ -144,6 +145,7 @@ const ServiceDetail = () => {
       return false;
     }
     addItem(service);
+    setCartNotice(`${service.name} added to cart!`);
     return true;
   };
 
