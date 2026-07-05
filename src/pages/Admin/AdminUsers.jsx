@@ -152,34 +152,46 @@ const AdminUsers = ({ roleFilter }) => {
       <Card sx={ { borderRadius: 3, border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'none' } }>
         <CardContent sx={ { p: 0 } }>
           <TableContainer sx={ { overflowX: 'auto' } }>
-            <Table sx={ { minWidth: 1000 } } size="small">
+            <Table sx={ { minWidth: 900, tableLayout: 'fixed' } } size="small">
+              <colgroup>
+                <col style={ { width: '160px' } } />
+                <col style={ { width: '200px' } } />
+                <col style={ { width: '120px' } } />
+                <col style={ { width: '90px' } } />
+                <col style={ { width: '120px' } } />
+                <col style={ { width: '50px' } } />
+                <col style={ { width: '60px' } } />
+                <col style={ { width: '70px' } } />
+                <col style={ { width: '110px' } } />
+                <col style={ { width: '96px' } } />
+              </colgroup>
               <TableHead>
                 <TableRow sx={ { bgcolor: 'rgba(3,40,140,0.04)' } }>
                   <TableCell sx={ { fontWeight: 700, whiteSpace: 'nowrap', py: 1.5 } }>User</TableCell>
                   <TableCell sx={ { fontWeight: 700, whiteSpace: 'nowrap', py: 1.5 } }>Email</TableCell>
                   <TableCell sx={ { fontWeight: 700, whiteSpace: 'nowrap', py: 1.5 } }>Phone</TableCell>
                   <TableCell sx={ { fontWeight: 700, whiteSpace: 'nowrap', py: 1.5 } }>Role</TableCell>
-                  <TableCell sx={ { fontWeight: 700, whiteSpace: 'nowrap', py: 1.5 } }>Referral Code</TableCell>
+                  <TableCell sx={ { fontWeight: 700, whiteSpace: 'nowrap', py: 1.5 } }>Ref Code</TableCell>
                   <TableCell sx={ { fontWeight: 700, whiteSpace: 'nowrap', py: 1.5 } } align="center">Refs</TableCell>
                   <TableCell sx={ { fontWeight: 700, whiteSpace: 'nowrap', py: 1.5 } } align="center">Orders</TableCell>
                   <TableCell sx={ { fontWeight: 700, whiteSpace: 'nowrap', py: 1.5 } }>Spent</TableCell>
                   <TableCell sx={ { fontWeight: 700, whiteSpace: 'nowrap', py: 1.5 } }>Joined</TableCell>
-                  <TableCell sx={ { fontWeight: 700, whiteSpace: 'nowrap', py: 1.5 } } align="right">Actions</TableCell>
+                  <TableCell sx={ { fontWeight: 700, whiteSpace: 'nowrap', py: 1.5, position: 'sticky', right: 0, bgcolor: 'rgba(240,244,255,1)', zIndex: 2, boxShadow: '-2px 0 6px rgba(0,0,0,0.06)' } } align="right">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 { users.map((user) => (
                   <TableRow key={ user.id } hover sx={ { '&:last-child td': { border: 0 } } }>
-                    <TableCell sx={ { py: 1.2 } }>
-                      <Box sx={ { display: 'flex', alignItems: 'center', gap: 1.5 } }>
-                        <Avatar sx={ { bgcolor: roleColors[user.role] || '#03288C', width: 32, height: 32, fontSize: 13 } }>
+                    <TableCell sx={ { py: 1.2, overflow: 'hidden' } }>
+                      <Box sx={ { display: 'flex', alignItems: 'center', gap: 1 } }>
+                        <Avatar sx={ { bgcolor: roleColors[user.role] || '#03288C', width: 30, height: 30, fontSize: 12, flexShrink: 0 } }>
                           { user.name?.[0]?.toUpperCase() }
                         </Avatar>
-                        <Typography variant="body2" fontWeight={ 600 } sx={ { whiteSpace: 'nowrap' } }>{ user.name }</Typography>
+                        <Typography variant="body2" fontWeight={ 600 } noWrap>{ user.name }</Typography>
                       </Box>
                     </TableCell>
-                    <TableCell sx={ { py: 1.2 } }>
-                      <Typography variant="body2" color="text.secondary" sx={ { whiteSpace: 'nowrap' } }>{ user.email }</Typography>
+                    <TableCell sx={ { py: 1.2, overflow: 'hidden' } }>
+                      <Typography variant="body2" color="text.secondary" noWrap>{ user.email }</Typography>
                     </TableCell>
                     <TableCell sx={ { py: 1.2 } }>
                       <Typography variant="body2" color="text.secondary" sx={ { whiteSpace: 'nowrap' } }>{ user.phone }</Typography>
@@ -192,7 +204,7 @@ const AdminUsers = ({ roleFilter }) => {
                       />
                     </TableCell>
                     <TableCell sx={ { py: 1.2 } }>
-                      <Typography variant="body2" sx={ { fontFamily: 'monospace', fontWeight: 700, letterSpacing: 0.5 } }>
+                      <Typography variant="body2" sx={ { fontFamily: 'monospace', fontWeight: 700, fontSize: 11 } }>
                         { user.referral_code || '—' }
                       </Typography>
                     </TableCell>
@@ -212,16 +224,16 @@ const AdminUsers = ({ roleFilter }) => {
                         { user.created_at ? new Date(user.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—' }
                       </Typography>
                     </TableCell>
-                    <TableCell align="right" sx={ { py: 1.2, whiteSpace: 'nowrap' } }>
-                      <IconButton size="small" onClick={ () => handleViewUser(user.id) } sx={ { color: '#03288C', p: 0.6 } }>
-                        <Visibility sx={ { fontSize: 17 } } />
+                    <TableCell align="right" sx={ { py: 1.2, whiteSpace: 'nowrap', position: 'sticky', right: 0, bgcolor: 'background.paper', zIndex: 1, boxShadow: '-2px 0 6px rgba(0,0,0,0.06)' } }>
+                      <IconButton size="small" onClick={ () => handleViewUser(user.id) } sx={ { color: '#03288C', p: 0.5 } }>
+                        <Visibility sx={ { fontSize: 16 } } />
                       </IconButton>
-                      <IconButton size="small" onClick={ () => handleOpenDialog(user) } sx={ { color: '#1a56c4', p: 0.6 } }>
-                        <Edit sx={ { fontSize: 17 } } />
+                      <IconButton size="small" onClick={ () => handleOpenDialog(user) } sx={ { color: '#1a56c4', p: 0.5 } }>
+                        <Edit sx={ { fontSize: 16 } } />
                       </IconButton>
                       { user.role !== 'admin' && (
-                        <IconButton size="small" onClick={ () => setDeleteDialog({ open: true, user }) } sx={ { color: '#d32f2f', p: 0.6 } }>
-                          <Delete sx={ { fontSize: 17 } } />
+                        <IconButton size="small" onClick={ () => setDeleteDialog({ open: true, user }) } sx={ { color: '#d32f2f', p: 0.5 } }>
+                          <Delete sx={ { fontSize: 16 } } />
                         </IconButton>
                       ) }
                     </TableCell>
