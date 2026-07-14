@@ -97,7 +97,7 @@ const AdminDashboard = () => {
     { key: 'totalOrders', label: 'Total Orders', icon: <ShoppingCart />, color: '#7c3aed', value: stats?.totalOrders },
     { key: 'totalServices', label: 'Services', icon: <TrendingUp />, color: '#059669', value: stats?.totalServices },
     { key: 'totalRevenue', label: 'Revenue', icon: <AttachMoney />, color: '#d97706', value: stats?.totalRevenue, prefix: '₹' },
-    { key: 'totalPlatformFees', label: 'Platform Fees', icon: <AttachMoney />, color: '#dc2626', value: stats?.totalPlatformFees, prefix: '₹' },
+    { key: 'totalPlatformFees', label: 'GST Charges', icon: <AttachMoney />, color: '#dc2626', value: stats?.totalPlatformFees, prefix: '₹' },
     { key: 'pendingOrders', label: 'Pending', icon: <PendingActions />, color: '#f59e0b', value: stats?.pendingOrders },
     { key: 'completedOrders', label: 'Completed', icon: <CheckCircle />, color: '#10b981', value: stats?.completedOrders },
     { key: 'cancelledOrders', label: 'Cancelled', icon: <Cancel />, color: '#ef4444', value: stats?.cancelledOrders },

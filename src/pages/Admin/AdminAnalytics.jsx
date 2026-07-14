@@ -216,12 +216,12 @@ const AdminAnalytics = () => {
           </Card>
         </Grid>
 
-        {/* Platform Fees */}
+        {/* GST Charges */}
         <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ borderRadius: 3, border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'none' }}>
             <CardContent>
               <Typography variant="h6" fontWeight={700} mb={2}>
-                Platform Fees {isDaily ? '(Daily)' : '(Monthly)'}
+                GST Charges {isDaily ? '(Daily)' : '(Monthly)'}
               </Typography>
               <ResponsiveContainer width="100%" height={300}>
                 <AreaChart data={orderData}>
@@ -235,7 +235,7 @@ const AdminAnalytics = () => {
                   <XAxis dataKey={xKey} tickFormatter={formatDate} tick={{ fontSize: 11 }} />
                   <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `₹${v}`} />
                   <Tooltip content={<CustomTooltip />} />
-                  <Area type="monotone" dataKey="platform_fees" stroke="#7c3aed" strokeWidth={2} fill="url(#feeGrad)" name="Platform Fees Revenue" />
+                  <Area type="monotone" dataKey="platform_fees" stroke="#7c3aed" strokeWidth={2} fill="url(#feeGrad)" name="GST Charges Revenue" />
                 </AreaChart>
               </ResponsiveContainer>
             </CardContent>

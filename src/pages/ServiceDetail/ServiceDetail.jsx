@@ -319,7 +319,7 @@ const ServiceDetail = () => {
                     ₹{ service.price.toLocaleString() }
                   </Typography>
                   <Typography variant="caption" color="text.secondary" sx={ { display: 'block', mb: 3 } }>
-                    + ₹{ (service.price * 0.0102).toFixed(2) } platform fee
+                    + ₹{ (service.price * 0.0102).toFixed(2) } GST
                   </Typography>
 
                   <Button

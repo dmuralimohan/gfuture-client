@@ -405,7 +405,7 @@ const Orders = () => {
                     { receiptData.order?.discount_amount > 0 && (
                       <div style={ { display: 'flex', justifyContent: 'space-between', padding: '3px 0', fontSize: 12 } }><span style={ { color: '#10b981' } }>Discount{ receiptData.order.coupon_code ? ` (${receiptData.order.coupon_code})` : '' }</span><span style={ { fontWeight: 700, color: '#10b981' } }>−₹{ receiptData.order.discount_amount.toFixed(2) }</span></div>
                     ) }
-                    <div style={ { display: 'flex', justifyContent: 'space-between', padding: '3px 0', fontSize: 12 } }><span style={ { color: '#666' } }>Platform Fee</span><span style={ { fontWeight: 600 } }>₹{ receiptData.order?.platform_fee?.toFixed(2) }</span></div>
+                    <div style={ { display: 'flex', justifyContent: 'space-between', padding: '3px 0', fontSize: 12 } }><span style={ { color: '#666' } }>GST Charges</span><span style={ { fontWeight: 600 } }>₹{ receiptData.order?.platform_fee?.toFixed(2) }</span></div>
                     <hr style={ { border: 'none', borderTop: '1px dashed #d0d5dd', margin: '12px 0' } } />
                     <div style={ { display: 'flex', justifyContent: 'space-between', padding: '8px 0', fontSize: 16, fontWeight: 800 } }><span>Total</span><span style={ { color: '#03288C' } }>₹{ receiptData.order?.total?.toFixed(2) }</span></div>
                   </div>

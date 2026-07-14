@@ -125,7 +125,7 @@ const AdminSettings = () => {
                         This percentage is charged on every order. It is applied to the subtotal after any coupon discounts.
                     </Typography>
                     <TextField
-                        label="Platform Fee Rate"
+                        label="GST Charges Rate"
                         type="number"
                         value={ getVal('platform_fee_rate') }
                         onChange={ (e) => setVal('platform_fee_rate', e.target.value) }

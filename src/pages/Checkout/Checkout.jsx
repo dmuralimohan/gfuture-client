@@ -421,7 +421,7 @@ const Checkout = () => {
                       </Box>
                     ) }
                     <Box sx={ { display: 'flex', justifyContent: 'space-between', mb: 0.5 } }>
-                      <Typography variant="body2" color="text.secondary">Platform Fee</Typography>
+                      <Typography variant="body2" color="text.secondary">GST Charges</Typography>
                       <Typography variant="body2">₹{ bd.platform_fee?.toFixed(2) }</Typography>
                     </Box>
                     <Divider sx={ { my: 1 } } />
@@ -650,7 +650,7 @@ const Checkout = () => {
                       </Box>
                     ) }
                     <Box sx={ { display: 'flex', justifyContent: 'space-between', mb: 1 } }>
-                      <Typography variant="body2" color="text.secondary">Platform Fee ({ platformFeeRate }%)</Typography>
+                      <Typography variant="body2" color="text.secondary">GST Charges ({ platformFeeRate }%)</Typography>
                       <Typography variant="body2" fontWeight={ 600 }>₹{ adjustedPlatformFee.toFixed(2) }</Typography>
                     </Box>
                     { extraFeeLabel && adjustedExtraFee > 0 && (
@@ -746,7 +746,7 @@ const Checkout = () => {
                                   </Box>
                                 ) }
                                 <Box sx={ { display: 'flex', justifyContent: 'space-between', mb: 0.5 } }>
-                                  <Typography variant="body2" color="text.secondary">Platform Fee</Typography>
+                                  <Typography variant="body2" color="text.secondary">GST Charges</Typography>
                                   <Typography variant="body2" fontWeight={ 600 }>₹{ paymentData.breakdown.platform_fee?.toFixed(2) }</Typography>
                                 </Box>
                                 <Divider sx={ { my: 1.5 } } />

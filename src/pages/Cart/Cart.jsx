@@ -153,7 +153,7 @@ const Cart = () => {
                 </Box>
                 <Box sx={ { display: 'flex', justifyContent: 'space-between', mb: 1.5 } }>
                   <Typography variant="body2" color="text.secondary">
-                    Platform Fee ({ platformFeeRate }%)
+                    GST Charges ({ platformFeeRate }%)
                   </Typography>
                   <Typography variant="body2" fontWeight={ 600 }>₹{ platformFee.toFixed(2) }</Typography>
                 </Box>
