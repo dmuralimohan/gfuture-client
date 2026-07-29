@@ -50,6 +50,10 @@ const Profile = () => {
   const [form, setForm] = useState({
     name: user?.name || '',
     phone: user?.phone || '',
+    address_street: user?.address_street || '',
+    address_landmark: user?.address_landmark || '',
+    address_state: user?.address_state || '',
+    address_pincode: user?.address_pincode || '',
     profile_picture: user?.profile_picture || '',
   });
 
@@ -59,6 +63,10 @@ const Profile = () => {
       setForm({
         name: user.name || '',
         phone: user.phone || '',
+        address_street: user.address_street || '',
+        address_landmark: user.address_landmark || '',
+        address_state: user.address_state || '',
+        address_pincode: user.address_pincode || '',
         profile_picture: user.profile_picture || '',
       });
     }
@@ -431,6 +439,55 @@ const Profile = () => {
                       label="Role"
                       value={ user?.role }
                       disabled
+                      sx={ { '& .MuiOutlinedInput-root': { borderRadius: 2 } } }
+                    />
+                  </Grid>
+                  <Grid size={ { xs: 12 } }>
+                    <Typography variant="h6" sx={ { fontWeight: 700, mb: 1.5, mt: 1, color: '#0E0E2E' } }>
+                      Address Information
+                    </Typography>
+                  </Grid>
+                  <Grid size={ { xs: 12 } }>
+                    <TextField
+                      fullWidth
+                      label="Street Address"
+                      value={ form.address_street }
+                      onChange={ (e) => setForm({ ...form, address_street: e.target.value }) }
+                      disabled={ !editing }
+                      placeholder="123 Main Street"
+                      sx={ { '& .MuiOutlinedInput-root': { borderRadius: 2 } } }
+                    />
+                  </Grid>
+                  <Grid size={ { xs: 12 } }>
+                    <TextField
+                      fullWidth
+                      label="Landmark"
+                      value={ form.address_landmark }
+                      onChange={ (e) => setForm({ ...form, address_landmark: e.target.value }) }
+                      disabled={ !editing }
+                      placeholder="Near City Park"
+                      sx={ { '& .MuiOutlinedInput-root': { borderRadius: 2 } } }
+                    />
+                  </Grid>
+                  <Grid size={ { xs: 12, sm: 6 } }>
+                    <TextField
+                      fullWidth
+                      label="State"
+                      value={ form.address_state }
+                      onChange={ (e) => setForm({ ...form, address_state: e.target.value }) }
+                      disabled={ !editing }
+                      placeholder="Maharashtra"
+                      sx={ { '& .MuiOutlinedInput-root': { borderRadius: 2 } } }
+                    />
+                  </Grid>
+                  <Grid size={ { xs: 12, sm: 6 } }>
+                    <TextField
+                      fullWidth
+                      label="Pincode"
+                      value={ form.address_pincode }
+                      onChange={ (e) => setForm({ ...form, address_pincode: e.target.value }) }
+                      disabled={ !editing }
+                      placeholder="400001"
                       sx={ { '& .MuiOutlinedInput-root': { borderRadius: 2 } } }
                     />
                   </Grid>
