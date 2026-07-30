@@ -82,6 +82,7 @@ const AdminUsers = ({ roleFilter }) => {
       setViewUser(data);
       setViewDialogOpen(true);
     } catch (err) {
+      console.error('Failed to load user details', err);
       setSnackbar({ open: true, message: 'Failed to load user details', severity: 'error' });
     }
   };
@@ -335,6 +336,23 @@ const AdminUsers = ({ roleFilter }) => {
               <Typography variant="body2" color="text.secondary" mb={ 0.5 }>Joined users via referral: { viewUser.referralSummary?.referred_users_count || 0 }</Typography>
               <Typography variant="body2" color="text.secondary" mb={ 2 }>Referral earned: ₹{ Number(viewUser.referralSummary?.referral_earned || 0).toLocaleString('en-IN') }</Typography>
               <Typography variant="body2" color="text.secondary" mb={ 2 }>Joined: { viewUser.user?.created_at ? new Date(viewUser.user.created_at).toLocaleDateString() : 'N/A' }</Typography>
+
+              { viewUser.user?.role === 'customer' && (
+                <>
+                  <Typography variant="body2" color="text.secondary" mb={ 0.5 }>
+                    Current Plan: { viewUser.currentPlan?.name ? `${viewUser.currentPlan.name} (${viewUser.currentPlan.currency || '₹'}${Number(viewUser.currentPlan.price || 0).toLocaleString('en-IN')})` : 'No active plan' }
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" mb={ 0.5 }>
+                    Plan Subscribed: { viewUser.currentPlan?.subscribed_at ? new Date(viewUser.currentPlan.subscribed_at).toLocaleDateString() : 'N/A' }
+                  </Typography>
+
+                  <Typography variant="subtitle2" fontWeight={ 700 } mb={ 1 } mt={ 1 }>Address</Typography>
+                  <Typography variant="body2" color="text.secondary" mb={ 0.5 }>Street: { viewUser.address?.street || viewUser.user?.address_street || 'N/A' }</Typography>
+                  <Typography variant="body2" color="text.secondary" mb={ 0.5 }>Landmark: { viewUser.address?.landmark || viewUser.user?.address_landmark || 'N/A' }</Typography>
+                  <Typography variant="body2" color="text.secondary" mb={ 0.5 }>State: { viewUser.address?.state || viewUser.user?.address_state || 'N/A' }</Typography>
+                  <Typography variant="body2" color="text.secondary" mb={ 2 }>Pincode: { viewUser.address?.pincode || viewUser.user?.address_pincode || 'N/A' }</Typography>
+                </>
+              ) }
 
               { viewUser.orders?.length > 0 && (
                 <>
