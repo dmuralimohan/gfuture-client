@@ -26,6 +26,7 @@ import {
   Edit,
   Save,
   ExitToApp,
+  DeleteForever,
   Shield,
   Star,
   CardMembership,
@@ -853,6 +854,15 @@ const Profile = () => {
                       </Box>
                     </Box>
                   </Card>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    startIcon={ <DeleteForever /> }
+                    onClick={ () => navigate('/account/delete') }
+                    sx={ { borderRadius: 2, mr: 1.5 } }
+                  >
+                    Delete Account
+                  </Button>
                   <Button
                     variant="outlined"
                     color="error"

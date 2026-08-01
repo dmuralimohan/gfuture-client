@@ -232,7 +232,7 @@ const AdminUsers = ({ roleFilter }) => {
                       <IconButton size="small" onClick={ () => handleOpenDialog(user) } sx={ { color: '#1a56c4', p: 0.5 } }>
                         <Edit sx={ { fontSize: 16 } } />
                       </IconButton>
-                      { user.role !== 'admin' && (
+                      { roleFilter === 'customer' && user.role === 'customer' && (
                         <IconButton size="small" onClick={ () => setDeleteDialog({ open: true, user }) } sx={ { color: '#d32f2f', p: 0.5 } }>
                           <Delete sx={ { fontSize: 16 } } />
                         </IconButton>
