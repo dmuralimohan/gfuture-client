@@ -25,6 +25,7 @@ import {
   Snackbar,
   Switch,
   FormControlLabel,
+  Avatar,
 } from '@mui/material';
 import { Search, Edit, Delete, Add } from '@mui/icons-material';
 import api from '../../utils/api';
@@ -43,6 +44,8 @@ const AdminServices = () => {
   const [formData, setFormData] = useState({
     name: '', category_id: '', provider_id: '', price: '', description: '', duration: '', warranty: '', image: '', image_links: '', includes: '', location: '', active: 1, type: 'service', size_value: '', size_unit: '',
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [deleteDialog, setDeleteDialog] = useState({ open: false, service: null });
 
@@ -80,6 +83,8 @@ const AdminServices = () => {
   const handleOpenDialog = (service = null) => {
     if (service) {
       setEditingService(service);
+      setImageFile(null);
+      setImagePreview(service.image || '');
       setFormData({
         name: service.name,
         category_id: service.category_id,
@@ -99,9 +104,22 @@ const AdminServices = () => {
       });
     } else {
       setEditingService(null);
+      setImageFile(null);
+      setImagePreview('');
       setFormData({ name: '', category_id: '', provider_id: '', price: '', description: '', duration: '', warranty: '', image: '', image_links: '', includes: '', location: '', active: 1, type: 'service', size_value: '', size_unit: '' });
     }
     setDialogOpen(true);
+  };
+
+  const handleImageFileChange = (event) => {
+    const file = event.target.files?.[0] || null;
+    setImageFile(file);
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+    } else {
+      setImagePreview(formData.image || '');
+    }
   };
 
   const handleSubmit = async () => {
@@ -115,11 +133,35 @@ const AdminServices = () => {
         size_value: formData.type === 'product' ? formData.size_value || null : null,
         size_unit: formData.type === 'product' ? formData.size_unit || null : null,
       };
+
+      const formPayload = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value === undefined || value === null) {
+          formPayload.append(key, '');
+          return;
+        }
+
+        if (Array.isArray(value)) {
+          formPayload.append(key, JSON.stringify(value));
+          return;
+        }
+
+        formPayload.append(key, String(value));
+      });
+
+      if (imageFile) {
+        formPayload.append('image_file', imageFile);
+      }
+
       if (editingService) {
-        await api.put(`/api/admin/services/${editingService.id}`, payload);
+        await api.put(`/api/admin/services/${editingService.id}`, formPayload, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
         setSnackbar({ open: true, message: 'Service updated successfully', severity: 'success' });
       } else {
-        await api.post('/api/admin/services', payload);
+        await api.post('/api/admin/services', formPayload, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
         setSnackbar({ open: true, message: 'Service created successfully', severity: 'success' });
       }
       setDialogOpen(false);
@@ -315,7 +357,33 @@ const AdminServices = () => {
             <TextField label="Description" fullWidth multiline rows={ 3 } value={ formData.description } onChange={ (e) => setFormData({ ...formData, description: e.target.value }) } />
             <TextField label="Duration" fullWidth value={ formData.duration } placeholder="e.g. 45-60 mins" onChange={ (e) => setFormData({ ...formData, duration: e.target.value }) } />
             <TextField label="Warranty" fullWidth value={ formData.warranty } placeholder="e.g. 30 days" onChange={ (e) => setFormData({ ...formData, warranty: e.target.value }) } />
-            <TextField label="Image URL" fullWidth value={ formData.image } onChange={ (e) => setFormData({ ...formData, image: e.target.value }) } />
+            <TextField
+              label="Image URL"
+              fullWidth
+              value={ formData.image }
+              onChange={ (e) => {
+                const nextUrl = e.target.value;
+                setFormData({ ...formData, image: nextUrl });
+                if (!imageFile) setImagePreview(nextUrl);
+              } }
+            />
+            <Button variant="outlined" component="label" sx={ { borderRadius: 2 } }>
+              { imageFile ? 'Change Image File' : 'Upload Image File' }
+              <input type="file" hidden accept="image/*" onChange={ handleImageFileChange } />
+            </Button>
+            { imagePreview && (
+              <Box sx={ { display: 'flex', alignItems: 'center', gap: 1.5 } }>
+                <Avatar
+                  variant="rounded"
+                  src={ imagePreview }
+                  alt="Service preview"
+                  sx={ { width: 64, height: 64, borderRadius: 2, bgcolor: 'rgba(0,0,0,0.04)' } }
+                />
+                <Typography variant="caption" color="text.secondary">
+                  { imageFile ? `Selected file: ${imageFile.name}` : 'Using image URL preview' }
+                </Typography>
+              </Box>
+            ) }
             <TextField
               label="Additional Image Links (comma separated URLs)"
               fullWidth
