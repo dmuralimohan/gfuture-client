@@ -37,6 +37,7 @@ const emptyForm = {
     name: '',
     price: '',
     description: '',
+    image: '',
     target: 'both',
     features: '',
     recommended: false,
@@ -51,6 +52,8 @@ const AdminPlans = () => {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editingPlan, setEditingPlan] = useState(null);
     const [formData, setFormData] = useState(emptyForm);
+    const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState('');
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
     const [deleteDialog, setDeleteDialog] = useState({ open: false, plan: null });
     const [expandedPlan, setExpandedPlan] = useState(null);
@@ -75,10 +78,13 @@ const AdminPlans = () => {
     const handleOpenDialog = (plan = null) => {
         if (plan) {
             setEditingPlan(plan);
+            setImageFile(null);
+            setImagePreview(plan.image || '');
             setFormData({
                 name: plan.name,
                 price: plan.price,
                 description: plan.description || '',
+                image: plan.image || '',
                 target: plan.target || 'both',
                 features: Array.isArray(plan.features) ? plan.features.join('\n') : '',
                 recommended: !!plan.recommended,
@@ -88,9 +94,21 @@ const AdminPlans = () => {
             });
         } else {
             setEditingPlan(null);
+            setImageFile(null);
+            setImagePreview('');
             setFormData(emptyForm);
         }
         setDialogOpen(true);
+    };
+
+    const handleImageFileChange = (event) => {
+        const file = event.target.files?.[0] || null;
+        setImageFile(file);
+        if (file) {
+            setImagePreview(URL.createObjectURL(file));
+        } else {
+            setImagePreview(formData.image || '');
+        }
     };
 
     const handleSubmit = async () => {
@@ -103,11 +121,35 @@ const AdminPlans = () => {
                     ? formData.features.split('\n').map((s) => s.trim()).filter(Boolean)
                     : [],
             };
+
+            const formPayload = new FormData();
+            Object.entries(payload).forEach(([key, value]) => {
+                if (value === undefined || value === null) {
+                    formPayload.append(key, '');
+                    return;
+                }
+
+                if (Array.isArray(value)) {
+                    formPayload.append(key, JSON.stringify(value));
+                    return;
+                }
+
+                formPayload.append(key, String(value));
+            });
+
+            if (imageFile) {
+                formPayload.append('image_file', imageFile);
+            }
+
             if (editingPlan) {
-                await api.put(`/api/admin/plans/${editingPlan.id}`, payload);
+                await api.put(`/api/admin/plans/${editingPlan.id}`, formPayload, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                });
                 setSnackbar({ open: true, message: 'Plan updated successfully', severity: 'success' });
             } else {
-                await api.post('/api/admin/plans', payload);
+                await api.post('/api/admin/plans', formPayload, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                });
                 setSnackbar({ open: true, message: 'Plan created successfully', severity: 'success' });
             }
             setDialogOpen(false);
@@ -311,6 +353,33 @@ const AdminPlans = () => {
                             value={ formData.description }
                             onChange={ (e) => setFormData({ ...formData, description: e.target.value }) }
                         />
+                        <TextField
+                            label="Image URL"
+                            fullWidth
+                            value={ formData.image }
+                            onChange={ (e) => {
+                                const nextUrl = e.target.value;
+                                setFormData({ ...formData, image: nextUrl });
+                                if (!imageFile) setImagePreview(nextUrl);
+                            } }
+                        />
+                        <Button variant="outlined" component="label" sx={ { borderRadius: 2 } }>
+                            { imageFile ? 'Change Image File' : 'Upload Image File' }
+                            <input type="file" hidden accept="image/*" onChange={ handleImageFileChange } />
+                        </Button>
+                        { imagePreview && (
+                            <Box sx={ { display: 'flex', alignItems: 'center', gap: 1.5 } }>
+                                <Avatar
+                                    variant="rounded"
+                                    src={ imagePreview }
+                                    alt="Plan preview"
+                                    sx={ { width: 64, height: 64, borderRadius: 2, bgcolor: 'rgba(0,0,0,0.04)' } }
+                                />
+                                <Typography variant="caption" color="text.secondary">
+                                    { imageFile ? `Selected file: ${imageFile.name}` : 'Using image URL preview' }
+                                </Typography>
+                            </Box>
+                        ) }
                         <TextField
                             label="Target Audience"
                             select
