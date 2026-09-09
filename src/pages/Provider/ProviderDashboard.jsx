@@ -59,12 +59,19 @@ const statusColors = {
 const emptyService = {
   name: '',
   category_id: '',
+  provider_id: '',
   price: '',
   description: '',
   duration: '',
   warranty: '',
   image: '',
-  includes: [''],
+  image_links: '',
+  includes: '',
+  location: '',
+  active: 1,
+  type: 'service',
+  size_value: '',
+  size_unit: '',
 };
 
 const emptyOffer = {
@@ -98,6 +105,8 @@ const ProviderDashboard = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState(null);
   const [formData, setFormData] = useState(emptyService);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
   const [saving, setSaving] = useState(false);
 
   // Delete confirm
@@ -221,23 +230,44 @@ const ProviderDashboard = () => {
   ];
 
   // --- Service form handlers ---
+  const handleImageFileChange = (event) => {
+    const file = event.target.files?.[0] || null;
+    setImageFile(file);
+    if (file) {
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      setImagePreview(formData.image || '');
+    }
+  };
+
   const openAddDialog = () => {
     setEditingService(null);
-    setFormData({ ...emptyService, includes: [''] });
+    setImageFile(null);
+    setImagePreview('');
+    setFormData({ ...emptyService, includes: '', image_links: '', location: '' });
     setDialogOpen(true);
   };
 
   const openEditDialog = (svc) => {
     setEditingService(svc);
+    setImageFile(null);
+    setImagePreview(svc.image || '');
     setFormData({
       name: svc.name || '',
       category_id: svc.category_id || '',
+      provider_id: svc.provider_id || '',
       price: svc.price || '',
       description: svc.description || '',
       duration: svc.duration || '',
       warranty: svc.warranty || '',
       image: svc.image || '',
-      includes: Array.isArray(svc.includes) && svc.includes.length > 0 ? svc.includes : [''],
+      image_links: Array.isArray(svc.image_links) ? svc.image_links.join(', ') : svc.image_links || '',
+      includes: Array.isArray(svc.includes) ? svc.includes.join(', ') : svc.includes || '',
+      location: svc.location || '',
+      active: svc.active ?? 1,
+      type: svc.type || 'service',
+      size_value: svc.size_value || '',
+      size_unit: svc.size_unit || '',
     });
     setDialogOpen(true);
   };
@@ -246,28 +276,13 @@ const ProviderDashboard = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleIncludesChange = (index, value) => {
-    setFormData((prev) => {
-      const updated = [...prev.includes];
-      updated[index] = value;
-      return { ...prev, includes: updated };
-    });
-  };
-
-  const addIncludesItem = () => {
-    setFormData((prev) => ({ ...prev, includes: [...prev.includes, ''] }));
-  };
-
-  const removeIncludesItem = (index) => {
-    setFormData((prev) => ({
-      ...prev,
-      includes: prev.includes.filter((_, i) => i !== index),
-    }));
-  };
-
   const handleSave = async () => {
     if (!formData.name || !formData.category_id || !formData.price) {
       showSnackbar('Please fill in name, category, and price', 'error');
+      return;
+    }
+    if (formData.type === 'product' && !String(formData.location || '').trim()) {
+      showSnackbar('Location is required for products', 'error');
       return;
     }
     setSaving(true);
@@ -276,13 +291,39 @@ const ProviderDashboard = () => {
         ...formData,
         price: Number(formData.price),
         category_id: Number(formData.category_id),
-        includes: formData.includes.filter((i) => i.trim() !== ''),
+        location: formData.location?.trim() || null,
+        image_links: formData.image_links ? formData.image_links.split(',').map((s) => s.trim()).filter(Boolean) : [],
+        includes: formData.includes ? formData.includes.split(',').map((s) => s.trim()).filter(Boolean) : [],
+        size_value: formData.type === 'product' ? formData.size_value || null : null,
+        size_unit: formData.type === 'product' ? formData.size_unit || null : null,
       };
+
+      const formPayload = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value === undefined || value === null) {
+          formPayload.append(key, '');
+          return;
+        }
+        if (Array.isArray(value)) {
+          formPayload.append(key, JSON.stringify(value));
+          return;
+        }
+        formPayload.append(key, String(value));
+      });
+
+      if (imageFile) {
+        formPayload.append('image_file', imageFile);
+      }
+
       if (editingService) {
-        await api.put(`/api/services/${editingService.id}`, payload);
+        await api.put(`/api/services/${editingService.id}`, formPayload, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
         showSnackbar('Service updated successfully');
       } else {
-        await api.post('/api/services', payload);
+        await api.post('/api/services', formPayload, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
         showSnackbar('Service created successfully');
       }
       setDialogOpen(false);
@@ -758,6 +799,44 @@ const ProviderDashboard = () => {
             />
 
             <TextField
+              label="Type"
+              value={ formData.type }
+              onChange={ (e) => handleFormChange('type', e.target.value) }
+              select
+              fullWidth
+            >
+              <MenuItem value="service">Service</MenuItem>
+              <MenuItem value="product">Product</MenuItem>
+            </TextField>
+
+            { formData.type === 'product' && (
+              <Box sx={ { display: 'flex', gap: 2 } }>
+                <TextField
+                  label="Size / Quantity"
+                  value={ formData.size_value }
+                  onChange={ (e) => handleFormChange('size_value', e.target.value) }
+                  fullWidth
+                  placeholder="e.g. 500, 1, 250"
+                />
+                <TextField
+                  label="Unit"
+                  value={ formData.size_unit }
+                  onChange={ (e) => handleFormChange('size_unit', e.target.value) }
+                  select
+                  fullWidth
+                >
+                  <MenuItem value="kg">kg</MenuItem>
+                  <MenuItem value="g">g</MenuItem>
+                  <MenuItem value="ml">ml</MenuItem>
+                  <MenuItem value="L">L</MenuItem>
+                  <MenuItem value="size">Size (S/M/L/XL)</MenuItem>
+                  <MenuItem value="pcs">Pieces</MenuItem>
+                  <MenuItem value="pack">Pack</MenuItem>
+                </TextField>
+              </Box>
+            ) }
+
+            <TextField
               label="Category"
               value={ formData.category_id }
               onChange={ (e) => handleFormChange('category_id', e.target.value) }
@@ -792,6 +871,16 @@ const ProviderDashboard = () => {
             </Box>
 
             <TextField
+              label="Location"
+              value={ formData.location }
+              onChange={ (e) => handleFormChange('location', e.target.value) }
+              fullWidth
+              required={ formData.type === 'product' }
+              helperText={ formData.type === 'product' ? 'Required for products.' : 'Optional for services' }
+              placeholder="Service area or product location"
+            />
+
+            <TextField
               label="Description"
               value={ formData.description }
               onChange={ (e) => handleFormChange('description', e.target.value) }
@@ -812,36 +901,54 @@ const ProviderDashboard = () => {
             <TextField
               label="Image URL"
               value={ formData.image }
-              onChange={ (e) => handleFormChange('image', e.target.value) }
+              onChange={ (e) => {
+                handleFormChange('image', e.target.value);
+                if (!imageFile) setImagePreview(e.target.value || '');
+              } }
               fullWidth
               placeholder="https://example.com/image.jpg"
             />
 
-            {/* Includes list */ }
-            <Box>
-              <Typography variant="subtitle2" fontWeight={ 600 } sx={ { mb: 1 } }>
-                What's Included
-              </Typography>
-              { formData.includes.map((item, idx) => (
-                <Box key={ idx } sx={ { display: 'flex', gap: 1, mb: 1 } }>
-                  <TextField
-                    value={ item }
-                    onChange={ (e) => handleIncludesChange(idx, e.target.value) }
-                    fullWidth
-                    size="small"
-                    placeholder={ `Item ${idx + 1}` }
-                  />
-                  { formData.includes.length > 1 && (
-                    <IconButton size="small" onClick={ () => removeIncludesItem(idx) } sx={ { color: '#ef4444' } }>
-                      <Close fontSize="small" />
-                    </IconButton>
-                  ) }
-                </Box>
-              )) }
-              <Button size="small" startIcon={ <Add /> } onClick={ addIncludesItem } sx={ { mt: 0.5 } }>
-                Add Item
-              </Button>
-            </Box>
+            <Button variant="outlined" component="label" sx={ { borderRadius: 2 } }>
+              { imageFile ? 'Change Image File' : 'Upload Image File' }
+              <input type="file" hidden accept="image/*" onChange={ handleImageFileChange } />
+            </Button>
+            { imagePreview && (
+              <Box sx={ { display: 'flex', alignItems: 'center', gap: 1.5 } }>
+                <Avatar
+                  variant="rounded"
+                  src={ imagePreview }
+                  alt="Service preview"
+                  sx={ { width: 64, height: 64, borderRadius: 2, bgcolor: 'rgba(0,0,0,0.04)' } }
+                />
+                <Typography variant="caption" color="text.secondary">
+                  { imageFile ? `Selected file: ${imageFile.name}` : 'Using image URL preview' }
+                </Typography>
+              </Box>
+            ) }
+
+            <TextField
+              label="Additional Image Links (comma separated URLs)"
+              value={ formData.image_links }
+              onChange={ (e) => handleFormChange('image_links', e.target.value) }
+              fullWidth
+              placeholder="https://..., https://..."
+            />
+
+            <TextField
+              label="Includes (comma separated)"
+              value={ formData.includes }
+              onChange={ (e) => handleFormChange('includes', e.target.value) }
+              fullWidth
+              placeholder="e.g. Diagnosis, Repair, Testing"
+            />
+
+            { editingService && (
+              <FormControlLabel
+                control={ <Switch checked={ !!formData.active } onChange={ (e) => handleFormChange('active', e.target.checked ? 1 : 0) } /> }
+                label="Active"
+              />
+            ) }
           </Box>
         </DialogContent>
         <DialogActions sx={ { p: 2.5 } }>
