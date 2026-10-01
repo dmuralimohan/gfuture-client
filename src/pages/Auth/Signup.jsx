@@ -171,6 +171,11 @@ const Signup = () => {
       role: form.role,
       referralCode: form.referralCode.trim() || undefined,
     });
+    if (result.pendingApproval) {
+      setError('');
+      navigate('/login', { state: { message: result.message } });
+      return;
+    }
     if (result.success) {
       navigate(result.user.role === 'provider' ? '/provider/dashboard' : '/');
     } else {

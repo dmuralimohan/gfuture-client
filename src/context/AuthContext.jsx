@@ -48,6 +48,9 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const { data } = await api.post('/api/auth/signup', userData);
+      if (data.pendingApproval) {
+        return { success: true, pendingApproval: true, user: data.user, message: data.message };
+      }
       localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
       setUser(data.user);
@@ -90,7 +93,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{
+      value={ {
         user,
         loading,
         isAuthenticated,
@@ -101,9 +104,9 @@ export const AuthProvider = ({ children }) => {
         signup,
         logout,
         updateProfile,
-      }}
+      } }
     >
-      {children}
+      { children }
     </AuthContext.Provider>
   );
 };

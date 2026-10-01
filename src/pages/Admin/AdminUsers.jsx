@@ -44,6 +44,7 @@ const AdminUsers = ({ roleFilter }) => {
   const [deleteDialog, setDeleteDialog] = useState({ open: false, user: null });
 
   const title = roleFilter === 'provider' ? 'Service Providers' : roleFilter === 'customer' ? 'Customers' : 'All Users';
+  const pendingApprovals = users.filter((user) => user.role === 'provider' && Number(user.is_approved) !== 1).length;
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -116,6 +117,16 @@ const AdminUsers = ({ roleFilter }) => {
     }
   };
 
+  const handleApproveProvider = async (userId) => {
+    try {
+      await api.patch(`/api/admin/users/${userId}/approve`);
+      setSnackbar({ open: true, message: 'Provider approved successfully', severity: 'success' });
+      fetchUsers();
+    } catch (err) {
+      setSnackbar({ open: true, message: err.response?.data?.message || 'Approval failed', severity: 'error' });
+    }
+  };
+
   const roleColors = {
     customer: '#03288C',
     provider: '#059669',
@@ -125,9 +136,18 @@ const AdminUsers = ({ roleFilter }) => {
   return (
     <Box sx={ { minWidth: 0 } }>
       <Box sx={ { display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 } }>
-        <Typography variant="h5" fontWeight={ 800 } color="#0E0E2E" sx={ { whiteSpace: 'nowrap' } }>
-          { title }
-        </Typography>
+        <Box>
+          <Typography variant="h5" fontWeight={ 800 } color="#0E0E2E" sx={ { whiteSpace: 'nowrap' } }>
+            { title }
+          </Typography>
+          { pendingApprovals > 0 && (
+            <Chip
+              label={ `${pendingApprovals} provider approval${pendingApprovals > 1 ? 's' : ''} pending` }
+              size="small"
+              sx={ { mt: 1, bgcolor: '#fff7ed', color: '#c2410c', border: '1px solid #fdba74', fontWeight: 700 } }
+            />
+          ) }
+        </Box>
         <Box sx={ { display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' } }>
           <TextField
             placeholder="Search users..."
@@ -172,6 +192,7 @@ const AdminUsers = ({ roleFilter }) => {
                   <TableCell sx={ { fontWeight: 700, whiteSpace: 'nowrap', py: 1.5 } }>Email</TableCell>
                   <TableCell sx={ { fontWeight: 700, whiteSpace: 'nowrap', py: 1.5 } }>Phone</TableCell>
                   <TableCell sx={ { fontWeight: 700, whiteSpace: 'nowrap', py: 1.5 } }>Role</TableCell>
+                  <TableCell sx={ { fontWeight: 700, whiteSpace: 'nowrap', py: 1.5 } }>Approval</TableCell>
                   <TableCell sx={ { fontWeight: 700, whiteSpace: 'nowrap', py: 1.5 } }>Ref Code</TableCell>
                   <TableCell sx={ { fontWeight: 700, whiteSpace: 'nowrap', py: 1.5 } } align="center">Refs</TableCell>
                   <TableCell sx={ { fontWeight: 700, whiteSpace: 'nowrap', py: 1.5 } } align="center">Orders</TableCell>
@@ -205,6 +226,19 @@ const AdminUsers = ({ roleFilter }) => {
                       />
                     </TableCell>
                     <TableCell sx={ { py: 1.2 } }>
+                      <Chip
+                        label={ user.role === 'provider' && Number(user.is_approved) !== 1 ? 'Pending' : 'Approved' }
+                        size="small"
+                        sx={ {
+                          fontWeight: 700,
+                          fontSize: 10,
+                          bgcolor: user.role === 'provider' && Number(user.is_approved) !== 1 ? '#fff7ed' : '#dcfce7',
+                          color: user.role === 'provider' && Number(user.is_approved) !== 1 ? '#c2410c' : '#166534',
+                          height: 22,
+                        } }
+                      />
+                    </TableCell>
+                    <TableCell sx={ { py: 1.2 } }>
                       <Typography variant="body2" sx={ { fontFamily: 'monospace', fontWeight: 700, fontSize: 11 } }>
                         { user.referral_code || '—' }
                       </Typography>
@@ -232,7 +266,12 @@ const AdminUsers = ({ roleFilter }) => {
                       <IconButton size="small" onClick={ () => handleOpenDialog(user) } sx={ { color: '#1a56c4', p: 0.5 } }>
                         <Edit sx={ { fontSize: 16 } } />
                       </IconButton>
-                      { roleFilter === 'customer' && user.role === 'customer' && (
+                      { user.role === 'provider' && Number(user.is_approved) !== 1 && (
+                        <IconButton size="small" onClick={ () => handleApproveProvider(user.id) } sx={ { color: '#16a34a', p: 0.5 } }>
+                          <CheckCircle sx={ { fontSize: 16 } } />
+                        </IconButton>
+                      ) }
+                      { (user.role === 'customer' || user.role === 'provider') && (
                         <IconButton size="small" onClick={ () => setDeleteDialog({ open: true, user }) } sx={ { color: '#d32f2f', p: 0.5 } }>
                           <Delete sx={ { fontSize: 16 } } />
                         </IconButton>
