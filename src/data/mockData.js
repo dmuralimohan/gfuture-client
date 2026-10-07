@@ -9,6 +9,7 @@ export const categories = [
   { id: 6, name: 'AC Service & Repair', icon: 'AcUnit', image: '/categories/ac.jpg' },
   { id: 7, name: 'Painting & Renovation', icon: 'FormatPaint', image: '/categories/painting.jpg' },
   { id: 8, name: 'Pest Control', icon: 'BugReport', image: '/categories/pest.jpg' },
+  { id: 9, name: 'Meat', icon: 'Restaurant', image: '/categories/meat.jpg' },
 ];
 
 export const services = [
