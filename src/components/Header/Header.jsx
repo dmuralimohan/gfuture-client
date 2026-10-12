@@ -25,6 +25,7 @@ import {
 import {
   Menu as MenuIcon,
   ShoppingCart,
+  Notifications,
   Person,
   Home,
   Store,
@@ -38,6 +39,7 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
+import api from '../../utils/api';
 
 const navLinks = [
   { label: 'Home', path: '/', icon: <Home /> },
@@ -57,6 +59,25 @@ const Header = () => {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setUnreadNotifications(0);
+      return;
+    }
+
+    const fetchUnread = async () => {
+      try {
+        const { data } = await api.get('/api/notifications');
+        setUnreadNotifications(data.unreadCount || 0);
+      } catch {
+        setUnreadNotifications(0);
+      }
+    };
+
+    fetchUnread();
+  }, [isAuthenticated]);
 
   const handleProfileMenu = (e) => setAnchorEl(e.currentTarget);
   const handleCloseMenu = () => setAnchorEl(null);
@@ -143,6 +164,14 @@ const Header = () => {
                 <ShoppingCart />
               </Badge>
             </IconButton>
+
+            { isAuthenticated && (
+              <IconButton onClick={ () => navigate('/notifications') } sx={ { color: '#03288C' } }>
+                <Badge badgeContent={ unreadNotifications } color="primary" max={ 9 }>
+                  <Notifications />
+                </Badge>
+              </IconButton>
+            ) }
 
             { isAuthenticated ? (
               <>

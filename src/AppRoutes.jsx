@@ -17,6 +17,7 @@ const Pricing = lazy(() => import('./pages/Pricing/Pricing'));
 const HowItWorks = lazy(() => import('./pages/HowItWorks/HowItWorks'));
 const About = lazy(() => import('./pages/About/About'));
 const Orders = lazy(() => import('./pages/Orders/Orders'));
+const Notifications = lazy(() => import('./pages/Notifications/Notifications'));
 const Checkout = lazy(() => import('./pages/Checkout/Checkout'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy/PrivacyPolicy'));
 const DeleteAccount = lazy(() => import('./pages/Auth/DeleteAccount'));
@@ -75,6 +76,7 @@ const AppRoutes = () => (
       <Route path="/how-it-works" element={ <HowItWorks /> } />
       <Route path="/about" element={ <About /> } />
       <Route path="/orders" element={ <Orders /> } />
+      <Route path="/notifications" element={ <Notifications /> } />
       <Route path="/page/privacy-policy" element={ <PrivacyPolicy /> } />
       <Route path="/account/delete" element={ <DeleteAccount /> } />
 

@@ -36,6 +36,12 @@ api.cachedGet = (url, config = {}) => {
 /** Clear cache (call after mutations like admin CRUD) */
 api.clearCache = () => cache.clear();
 
+export const notificationService = {
+  getAll: () => api.get('/api/notifications'),
+  markRead: (id) => api.patch(`/api/notifications/${id}/read`),
+  markAllRead: () => api.post('/api/notifications/read-all'),
+};
+
 // Request interceptor — attach token
 api.interceptors.request.use(
   (config) => {

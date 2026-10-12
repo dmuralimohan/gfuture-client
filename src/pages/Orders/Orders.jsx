@@ -35,6 +35,7 @@ import OffersSection from '../Home/OffersSection';
 const statusColors = {
   pending: { bg: '#fef3c7', text: '#d97706', icon: <HourglassTop sx={ { fontSize: 15 } } /> },
   confirmed: { bg: '#e0f2fe', text: '#0284c7', icon: <CheckCircle sx={ { fontSize: 15 } } /> },
+  picked_up: { bg: '#ede9fe', text: '#7c3aed', icon: <CheckCircle sx={ { fontSize: 15 } } /> },
   'in-progress': { bg: '#dbeafe', text: '#2563eb', icon: <HourglassTop sx={ { fontSize: 15 } } /> },
   completed: { bg: '#dcfce7', text: '#16a34a', icon: <CheckCircle sx={ { fontSize: 15 } } /> },
   cancelled: { bg: '#fee2e2', text: '#dc2626', icon: <Cancel sx={ { fontSize: 15 } } /> },
